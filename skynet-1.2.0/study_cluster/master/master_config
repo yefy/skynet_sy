@@ -1,0 +1,13 @@
+include "master_config.path"
+thread = 8
+logger = nil
+logpath = "."
+harbor = 0
+start = "cluster"	-- main script
+bootstrap = "snlua bootstrap"	-- The service for bootstrap
+-- snax_interface_g = "snax_g"
+cpath = root.."cservice/?.so"
+-- daemon = "./skynet.pid"
+master_address  = "127.0.0.1:2601"
+master_name     = "master"
+--logic_server   = "logic_server"

@@ -17,37 +17,54 @@ local function  serverName(name, address)
     return rServerName
 end
 
-local SlaveNode = {}
+local Slave = {nodes = {}}
 
-function  SlaveNode.add(name, address)
+function  Slave.add(name, address)
     local rSlaveNode = {name = name, address = address}
     local rServerName = serverName(name, address)
-    SlaveNode[rServerName] = rSlaveNode
+    Slave.nodes[rServerName] = rSlaveNode
     log.printTable(log.fatalLevel(), {{rSlaveNode, "add rSlaveNode"}})
 end
 
-function  SlaveNode.remove(name, address)
+function  Slave.remove(name, address)
     local rSlaveNode = {name = name, address = address}
     local rServerName = serverName(name, address)
-    SlaveNode[rServerName] = nil
+    Slave.nodes[rServerName] = nil
     log.printTable(log.fatalLevel(), {{rSlaveNode, "remove rSlaveNode"}})
 end
 
-local ClusterNode = {}
-function  ClusterNode.add(name, address)
+function  Slave.copy()
+    local rNodes = {}
+    for _, _node in pairs(Slave.nodes) do
+        table.insert(rNodes, _node)
+    end
+    return rNodes
+end
+
+--[[
+local Cluster = {nodes = {}}
+function  Cluster.add(name, address)
     local rClusterNode = {name = name, address = address}
     local rServerName = serverName(name, address)
-    ClusterNode[rServerName] = {name = name, address = address}
+    Cluster.nodes[rServerName] = {name = name, address = address}
     log.printTable(log.fatalLevel(), {{rClusterNode, "add rClusterNode"}})
 end
 
-function  ClusterNode.remove(name, address)
+function  Cluster.remove(name, address)
     local rClusterNode = {name = name, address = address}
     local rServerName = serverName(name, address)
-    ClusterNode[rServerName] = nil
+    Cluster.nodes[rServerName] = nil
     log.printTable(log.fatalLevel(), {{rClusterNode, "remove rClusterNode"}})
 end
 
+function  Cluster.copy()
+    local rNodes
+    for _, _node in pairs(Cluster.nodes) do
+        table.insert(rNodes, _node)
+    end
+    return rNodes
+end
+]]
 
 
 local CMD = {}
@@ -93,7 +110,7 @@ end
 function  CMD.init()
     if slaveName and slaveAddress then
         CMD.openAddress(slaveName, slaveAddress, logicServer)
-        ClusterNode.add(masterName, masterAddress)
+        Slave.add(masterName, masterAddress)
         local rMasterServer = CMD.openServer(masterName, masterAddress)
         CMD.slaveRegister(rMasterServer, slaveName, slaveAddress)
     else
@@ -103,22 +120,26 @@ end
 
 function  CMD.slaveRegister(server, name, address)
     local rSlaveRegister = {name = name, address = address}
-    skynet.call(server, "lua", "onMasterRegister", rSlaveRegister)
+    local rNodes = skynet.call(server, "lua", "onMasterRegister", rSlaveRegister)
+    for _, _node in pairs(rNodes) do
+        Slave.add(_node.name, _node.address)
+    end
 end
 
 function  CMD.onMasterRegister(data)
-    for _, _SlaveNode in pairs(SlaveNode) do
-        log.fatal("1111111111111111111")
+    local rNodes = Slave.copy()
+    for _, _SlaveNode in pairs(Slave.nodes) do
         log.fatal("_SlaveNode.name, _SlaveNode.address", _SlaveNode.name, _SlaveNode.address)
         local rSlaveServer = CMD.openServer(_SlaveNode.name, _SlaveNode.address)
         skynet.call(rSlaveServer, "lua", "onSlaveRegister", data)
     end
-    SlaveNode.add(data.name, data.address)
-    ClusterNode.add(data.name, data.address)
+    Slave.add(data.name, data.address)
+    --Cluster.add(data.name, data.address)
+    return rNodes
 end
 
 function  CMD.onSlaveRegister(data)
-    ClusterNode.add(data.name, data.address)
+    Slave.add(data.name, data.address)
 end
 
 
@@ -132,17 +153,17 @@ function  CMD.slaveQuit(server, name, address)
 end
 
 function  CMD.onMasterQuit(data)
-    for _, _SlaveNode in pairs(SlaveNode) do
+    for _, _SlaveNode in pairs(Slave.nodes) do
         log.fatal("_SlaveNode.name, _SlaveNode.address", _SlaveNode.name, _SlaveNode.address)
         local rSlaveServer = CMD.openServer(_SlaveNode.name, _SlaveNode.address)
         skynet.call(rSlaveServer, "lua", "onSlaveQuit", data)
     end
-    SlaveNode.remove(data.name, data.address)
-    ClusterNode.remove(data.name, data.address)
+    Slave.remove(data.name, data.address)
+    --Cluster.remove(data.name, data.address)
 end
 
 function  CMD.onSlaveQuit(data)
-    ClusterNode.remove(data.name, data.address)
+    Slave.remove(data.name, data.address)
 end
 
 

@@ -723,6 +723,7 @@ harbor_init(struct harbor *h, struct skynet_context *ctx, const char * args) {
 	if (slave == 0) {
 		return 1;
 	}
+	printf(" ---yefy ******************** harbor_id = %d, slave = %u \n", harbor_id, slave);
 	h->id = harbor_id;
 	h->slave = slave;
 	skynet_callback(ctx, h, mainloop);

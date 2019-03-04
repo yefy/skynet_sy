@@ -18,6 +18,7 @@ invalid_type(int type) {
 
 void 
 skynet_harbor_send(struct remote_message *rmsg, uint32_t source, int session) {
+	printf(" ---yefy ******************** source = %u, session = %d, rmsg->type = %d \n", source, session, rmsg->type);
 	assert(invalid_type(rmsg->type) && REMOTE);
 	skynet_context_send(REMOTE, rmsg, sizeof(*rmsg) , source, PTYPE_SYSTEM , session);
 }
@@ -36,6 +37,7 @@ skynet_harbor_init(int harbor) {
 
 void
 skynet_harbor_start(void *ctx) {
+	printf(" ---yefy ******************** skynet_harbor_start \n");
 	// the HARBOR must be reserved to ensure the pointer is valid.
 	// It will be released at last by calling skynet_harbor_exit
 	skynet_context_reserve(ctx);

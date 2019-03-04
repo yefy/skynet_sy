@@ -8,10 +8,16 @@ local function monitor_master()
 	skynet.exit()
 end
 
+
+local function monitor_master222()
+	skynet.newservice("testharborlink")
+end
+
 skynet.start(function()
 	print("Log server start")
 	skynet.monitor "simplemonitor"
 	local log = skynet.newservice("globallog")
 	skynet.fork(monitor_master)
+	skynet.fork(monitor_master222)
 end)
 

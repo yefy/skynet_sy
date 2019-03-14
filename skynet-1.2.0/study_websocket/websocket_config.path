@@ -1,0 +1,7 @@
+root = "./"
+luaservice = root.."service/?.lua;"..root.."test/?.lua;"..root.."study_websocket/?.lua;"..root.."test/?/init.lua"
+lualoader = root .. "lualib/loader.lua"
+lua_path = root.."lualib/?.lua;"..root.."lualib/?/init.lua;"..root.."study_websocket/?.lua;"..root.."study_websocket/?.lua"
+lua_cpath = root .. "luaclib/?.so;"..root.."study_websocket/pblib/?.so"
+snax = root.."study_websocket/?.lua;"..root.."test/?.lua"
+--cluster = "./study_websocket/cluster/clustername.lua"

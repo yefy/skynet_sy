@@ -77,15 +77,18 @@ function command.REMOVE(_, handle, kill)
 end
 
 local function launch_service(service, ...)
+	print(" ---yefy ****************launch_service  service, ... = ", service, ...)
 	local param = table.concat({...}, " ")
 	local inst = skynet.launch(service, param)
 	local session = skynet.context()
 	local response = skynet.response()
 	if inst then
+		print(" ---yefy ****************launch_service  111111111")
 		services[inst] = service .. " " .. param
 		instance[inst] = response
 		launch_session[inst] = session
 	else
+		print(" ---yefy ****************launch_service  222222222")
 		response(false)
 		return
 	end

@@ -124,8 +124,6 @@ drop_message(struct skynet_message *msg, void *ud) {
 
 struct skynet_context * 
 skynet_context_new(const char * name, const char *param) {
-	printf(" ---yef ********** c cmd_launch name = %s, param = %s \n", name, param);
-
 	struct skynet_module * mod = skynet_module_query(name);
 
 	if (mod == NULL)
@@ -483,7 +481,6 @@ cmd_kill(struct skynet_context * context, const char * param) {
 
 static const char *
 cmd_launch(struct skynet_context * context, const char * param) {
-	printf(" ---yef ********** c cmd_launch param = %s \n", param);
 	size_t sz = strlen(param);
 	char tmp[sz+1];
 	strcpy(tmp,param);

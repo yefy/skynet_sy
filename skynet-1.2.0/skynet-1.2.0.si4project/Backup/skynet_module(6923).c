@@ -23,8 +23,6 @@ static struct modules * M = NULL;
 
 static void *
 _try_open(struct modules *m, const char * name) {
-	printf(" ---yef ********** c _try_open m->path = %s, name = %s \n", m->path, name);
-
 	const char *l;
 	const char * path = m->path;
 	size_t path_size = strlen(path);
@@ -53,7 +51,6 @@ _try_open(struct modules *m, const char * name) {
 			fprintf(stderr,"Invalid C service path\n");
 			exit(1);
 		}
-		printf(" ---yef ********** c cmd_launch tmp = %s \n", tmp);
 		dl = dlopen(tmp, RTLD_NOW | RTLD_GLOBAL);
 		path = l;
 	}while(dl == NULL);

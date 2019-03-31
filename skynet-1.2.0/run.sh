@@ -1,16 +1,16 @@
+#!/bin/bash
 #cd ./study/protos
-cd ./study_cluster/protos
+cd ./study/protos
 rm *.pb
 protoName="protoName"
 >protoName
-for file in *;
+for file in $(ls ./)
 do
     echo $file
     prefix=${file%.*}
-    #echo $prefix
+    echo $prefix
     suffix=${file##*.}
-    #echo $suffix
-
+    echo $suffix
     if [ "$suffix" = "proto" ]
     then
         echo "create $prefix.pb"
@@ -18,11 +18,8 @@ do
 	    echo $prefix.pb >> $protoName
     fi
 done
-
-cd -
-
+#cd -
 #killall -9 skynet
-
 #./skynet study/switch/switch_config &
 #sleep 1s
 #./skynet study/chat/chat_config &

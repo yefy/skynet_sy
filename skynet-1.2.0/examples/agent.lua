@@ -10,9 +10,17 @@ local send_request
 local CMD = {}
 local REQUEST = {}
 local client_fd
-
+local number = 0
 function REQUEST:get()
 	print("get", self.what)
+	number = number + 1
+	local rNumber = number
+	if rNumber == 1 then
+		print("*******yefy  rNumber == 1 sleep 100 * 10")
+		skynet.sleep(100 * 10)
+	end
+	print("*******yefy  REQUEST:get() rNumber = ", rNumber)
+	skynet.sleep(100 * 10)
 	local r = skynet.call("SIMPLEDB", "lua", "get", self.what)
 	return { result = r }
 end

@@ -231,6 +231,57 @@ function skynet.sleep(ti, token)
 	end
 end
 
+function skynet.resume(handle, session)
+	local str = handle .. " " .. session
+	print("str", str)
+	local ret = c.intcommand("RESUME", str)
+	print("ret", ret)
+end
+
+function skynet.handle()
+	local handle = c.intcommand("HANDLE")
+	print("handle = ", handle)
+	return handle
+end
+
+function skynet.session()
+	local session = c.intcommand("SESSION")
+	print("session = ", session)
+	return session
+end
+
+function skynet.suspend(session)
+	print("suspend session = ", session)
+	local token = coroutine.running()
+	print("1111111111")
+	local succ, ret = suspend_sleep(session, token)
+	print("2222222222222")
+	sleep_session[token] = nil
+	if succ then
+		return
+	end
+	if ret == "BREAK" then
+		return ret
+	else
+		error(ret)
+	end
+--[[
+	local session = c.intcommand("TIMEOUT",ti)sleep
+	assert(session)
+	token = token or coroutine.running()
+	local succ, ret = suspend_sleep(session, token)
+	sleep_session[token] = nil
+	if succ then
+		return
+	end
+	if ret == "BREAK" then
+		return "BREAK"
+	else
+		error(ret)
+	end
+	]]
+end
+
 function skynet.yield()
 	return skynet.sleep(0)
 end

@@ -100,7 +100,13 @@ end
 
 send_request("handshake")
 send_request("set", { what = "hello", value = "world" })
+local nuber = 1
 while true do
+	dispatch_package()
+	nuber = nuber + 1
+	local cmd = "nuber  " .. nuber
+	send_request("get", { what = cmd })
+	--[[
 	dispatch_package()
 	local cmd = socket.readstdin()
 	if cmd then
@@ -112,4 +118,5 @@ while true do
 	else
 		socket.usleep(100)
 	end
+	]]
 end

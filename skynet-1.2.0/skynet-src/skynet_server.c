@@ -397,6 +397,46 @@ struct command_func {
 };
 
 static const char *
+cmd_handle(struct skynet_context * context, const char * param) {
+	printf("************yefy context->handle = %d \n", context->handle);
+
+	sprintf(context->result, "%d", context->handle);
+	return context->result;
+}
+
+static const char *
+cmd_session(struct skynet_context * context, const char * param) {
+	int session = skynet_context_newsession(context);
+	printf("************yefy session = %d \n", session);
+	sprintf(context->result, "%d", session);
+	return context->result;
+}
+
+static const char *
+cmd_resume(struct skynet_context * context, const char * param) {
+	int handle = 0;
+	int session = 0;
+	sscanf(param,"%d %d",&handle, &session);
+	printf("************yefy handle = %d, session = %d \n",handle, session);
+
+	struct skynet_message message;
+	message.source = 0;
+	message.session = session;
+	message.data = NULL;
+	message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT;
+
+	int ret = 0;
+	if (skynet_context_push(handle, &message)) {
+		ret = -1;
+	}
+
+	sprintf(context->result, "%d", ret);
+	return context->result;
+}
+
+
+
+static const char *
 cmd_timeout(struct skynet_context * context, const char * param) {
 	char * session_ptr = NULL;
 	int ti = strtol(param, &session_ptr, 10);
@@ -646,6 +686,9 @@ cmd_signal(struct skynet_context * context, const char * param) {
 }
 
 static struct command_func cmd_funcs[] = {
+	{ "HANDLE", cmd_handle },
+	{ "SESSION", cmd_session },
+	{ "RESUME", cmd_resume },
 	{ "TIMEOUT", cmd_timeout },
 	{ "REG", cmd_reg },
 	{ "QUERY", cmd_query },

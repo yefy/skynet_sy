@@ -1,0 +1,14 @@
+include "player_config.path"
+
+-- preload = "./examples/preload.lua"	-- run preload.lua before every lua service run
+thread = 8
+logger = nil
+logpath = "."
+harbor = 3
+address = "127.0.0.1:2703"
+master = "127.0.0.1:2601"
+start = "player_main"	-- main script
+bootstrap = "snlua bootstrap"	-- The service for bootstrap
+-- snax_interface_g = "snax_g"
+cpath = root.."cservice/?.so"
+-- daemon = "./skynet.pid"

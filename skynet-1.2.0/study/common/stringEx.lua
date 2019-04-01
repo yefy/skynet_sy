@@ -17,6 +17,11 @@ function string.trim(str)
     return string.gsub(str, "[ \t\n\r]+$", "")
 end
 
+function string.pack_package(msg)
+    local package = string.pack(">s2", msg)
+    return package
+end
+
 function string.unpack_package(text)
     local size = #text
     if size < 2 then

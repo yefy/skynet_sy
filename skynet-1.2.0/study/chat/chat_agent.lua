@@ -7,11 +7,9 @@ local log = require "common/log"
 local CMD = {}
 
 function  CMD.chat(data)
-	log.fatal("skynet.self()", skynet.self())
-	skynet.sleep(100 * 5)
 	local rChatData = data["base.Chat"]
 	log.printTable(log.fatalLevel(), {{rChatData, "rChatData"}})
-	return skynet.self()
+	return 0, rChatData
 end
 
 skynet.start(function()

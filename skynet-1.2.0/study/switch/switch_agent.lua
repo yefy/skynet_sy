@@ -36,7 +36,8 @@ function CMD.client(fd, msg, sz)
 	log.fatal("playerAgent", playerAgent)
 	log.fatal("switch_agent self", skynet.self())
 	--skynet.call(playerAgent, "lua",  rMessage)
-	skynet.call(playerAgent, "client", rMessage)
+	local package = skynet.call(playerAgent, "client", rMessage)
+	send_package(package)
 end
 
 function CMD.server(conf)

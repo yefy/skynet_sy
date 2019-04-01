@@ -1,9 +1,10 @@
 local skynet = require "skynet"
+local log = require "common/log"
 
 skynet.start(function()
-	print("chat_server start")
+	log.fatal("player start")
 	--skynet.newservice("chat_cluster")
-	--skynet.newservice("chat_server")
-	skynet.newservice("chat_server_harbor")
+	skynet.newservice("player_server")
+	--skynet.newservice("chat_server_harbor")
 	skynet.exit()
 end)

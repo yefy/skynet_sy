@@ -48,6 +48,14 @@ function command.setOfficeNo(officeNo)
     OfficeNo = officeNo
 end
 
+function command.isActionLevel(level)
+    return LogLeveValue <= level
+end
+
+function command.getLevel()
+    return LogLeveValue
+end
+
 function command.setLevel(level)
     LogLeveValue = level
 end
@@ -153,8 +161,8 @@ function command.print(level, desc, ...)
 end
 
 function command.printData(level, desc, ...)
-    command.addStackLevel(2)
-    command.print(level, desc, ...)
+    command.addStackLevel(3)
+    xpcall(command.print, function() print(debug.traceback()) end, level, desc, ...)
 end
 
 function command.all(desc, ...)
@@ -324,6 +332,9 @@ function command.getSpace()
 end
 
 function command.insertData(space, data)
+    if not data then
+        data = ""
+    end
     table.insert(TableDataList, space .. data)
 end
 
@@ -337,8 +348,7 @@ function command.printSubTable(tableData, filterFunc, func)
     if not command.getSpace() then
         return
     end
-
-    command.subTableToList(tableData, func, filterFunc)
+    xpcall(command.subTableToList, function() print(debug.traceback()) end, tableData, func, filterFunc)
 end
 
 function command.printTable(logLevel, tableData, desc, func, filterFunc)
@@ -346,13 +356,29 @@ function command.printTable(logLevel, tableData, desc, func, filterFunc)
         command.initStackLevel()
         return
     end
+
     command.addSpace("")
-    command.tableToList(tableData, desc, func, filterFunc)
+    xpcall(command.tableToList, function() print(debug.traceback()) end, tableData, desc, func, filterFunc)
     command.delSpace()
+
+    local printTableModel = {
+        row = 1,
+        package = 2,
+    }
+    local model = printTableModel.package
+
     if #TableDataList > 0 then
         local fileName, line, funcName = command.printInfo()
-        for _, v in ipairs(TableDataList) do
-            command.doPrint(fileName, line, funcName, logLevel, "", v)
+        if model == printTableModel.row then
+            for _, v in ipairs(TableDataList) do
+                command.doPrint(fileName, line, funcName, logLevel, "", v)
+            end
+        else
+            local str = "\n"
+            for _, v in ipairs(TableDataList) do
+                str = str .. v .. "\n"
+            end
+            command.doPrint(fileName, line, funcName, logLevel, "", str)
         end
     end
 
@@ -384,14 +410,20 @@ function command.subTableToList(tableData, func, filterFunc)
         return
     end
 
+    if type(tableData) ~= "table" then
+        return
+    end
+
     local space = command.getSpace()
     for _, rTableData in ipairs(tableData) do
-        command.insertData(space, rTableData[2])
-        command.insertData(space, "{")
-        command.createSpace()
-        command.doTableToList(rTableData[2], rTableData[1], func, filterFunc)
-        command.delSpace()
-        command.insertData(space, "}")
+        if type(rTableData[1]) == "table" then
+            command.insertData(space, rTableData[2])
+            command.insertData(space, "{")
+            command.createSpace()
+            command.doTableToList(rTableData[2], rTableData[1], func, filterFunc)
+            command.delSpace()
+            command.insertData(space, "}")
+        end
     end
 end
 

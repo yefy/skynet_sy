@@ -95,10 +95,10 @@ local function sendLogin()
 	local rHead = {
 		ver = 1,
 		session = session,
-		server = "chat_server",
+		server = "player_agent",
 		command = "login",
 		sourceUid = 1,
-		destUid = 2,
+		destUid = 1,
 		protoMessages = {"base.Login"},
 	}
 	local rLogin = {
@@ -155,7 +155,17 @@ while true do
 	--socket.usleep(1000000)
 end
 ]]
-sendLogin()
-sendChat()
+for i = 1, 10 do
+	--sendLogin()
+	sendChat()
+	--[[
+	sendChat()
+	log.fatal("sleep stat")
+	socket.usleep(1000000* 10)
+	log.fatal("sleep end")
+	sendChat()
+	]]
+	socket.usleep(1000000)
+end
 socket.usleep(1000000)
 dispatch_package()

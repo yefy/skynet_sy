@@ -1,1 +1,116 @@
----- skynet.profile Matches (0 in 0 files) ----
+---- harbor Matches (133 in 13 files) ----
+lua-skynet.c (lualib-src) line 361 : lharbor(lua_State *L) {
+lharbor in lua-skynet.c (lualib-src) : 	int harbor = 0;
+lharbor in lua-skynet.c (lualib-src) : 	int remote = skynet_isremote(context, handle, &harbor);
+lharbor in lua-skynet.c (lualib-src) : 	lua_pushinteger(L,harbor);
+luaopen_skynet_core in lua-skynet.c (lualib-src) : 		{ "harbor", lharbor },
+Makefile line 47 : CSERVICE = snlua logger gate harbor
+Makefile line 71 :   skynet_harbor.c skynet_env.c skynet_monitor.c skynet_socket.c socket_server.c \
+service_harbor.c (service-src) line 2 : #include "skynet_harbor.h"
+service_harbor.c (service-src) line 7 : 	harbor listen the PTYPE_HARBOR (in text)
+service_harbor.c (service-src) line 9 : 	S fd id: connect to new harbor , we should send self_id to fd first , and then recv a id (check it), and at last send queue.
+service_harbor.c (service-src) line 10 : 	A fd id: accept new harbor , we should send self_id to fd , and then send queue.
+service_harbor.c (service-src) line 32 : 	harbor id (8bits) is also in that place , but remote message doesn't need harbor id.
+service_harbor.c (service-src) line 40 : struct harbor_msg {
+service_harbor.c (service-src) line 46 : struct harbor_msg_queue {
+harbor_msg_queue in service_harbor.c (service-src) : 	struct harbor_msg * data;
+keyvalue in service_harbor.c (service-src) : 	struct harbor_msg_queue * queue;
+slave in service_harbor.c (service-src) : 	struct harbor_msg_queue *queue;
+service_harbor.c (service-src) line 81 : struct harbor {
+service_harbor.c (service-src) line 92 : push_queue_msg(struct harbor_msg_queue * queue, struct harbor_msg * m) {
+push_queue_msg in service_harbor.c (service-src) : 		struct harbor_msg * new_buffer = skynet_malloc(queue->size * 2 * sizeof(struct harbor_msg));
+push_queue_msg in service_harbor.c (service-src) : 	struct harbor_msg * slot = &queue->data[queue->tail];
+service_harbor.c (service-src) line 113 : push_queue(struct harbor_msg_queue * queue, void * buffer, size_t sz, struct remote_message_header * header) {
+push_queue in service_harbor.c (service-src) : 	struct harbor_msg m;
+service_harbor.c (service-src) line 121 : static struct harbor_msg *
+service_harbor.c (service-src) line 122 : pop_queue(struct harbor_msg_queue * queue) {
+pop_queue in service_harbor.c (service-src) : 	struct harbor_msg * slot = &queue->data[queue->head];
+service_harbor.c (service-src) line 131 : static struct harbor_msg_queue *
+new_queue in service_harbor.c (service-src) : 	struct harbor_msg_queue * queue = skynet_malloc(sizeof(*queue));
+new_queue in service_harbor.c (service-src) : 	queue->data = skynet_malloc(DEFAULT_QUEUE_SIZE * sizeof(struct harbor_msg));
+service_harbor.c (service-src) line 143 : release_queue(struct harbor_msg_queue *queue) {
+release_queue in service_harbor.c (service-src) : 	struct harbor_msg * m;
+service_harbor.c (service-src) line 231 : close_harbor(struct harbor *h, int id) {
+service_harbor.c (service-src) line 244 : report_harbor_down(struct harbor *h, int id) {
+service_harbor.c (service-src) line 251 : struct harbor *
+service_harbor.c (service-src) line 252 : harbor_create(void) {
+harbor_create in service_harbor.c (service-src) : 	struct harbor * h = skynet_malloc(sizeof(*h));
+service_harbor.c (service-src) line 260 : harbor_release(struct harbor *h) {
+harbor_release in service_harbor.c (service-src) : 			close_harbor(h,i);
+harbor_release in service_harbor.c (service-src) : 			// don't call report_harbor_down.
+service_harbor.c (service-src) line 309 : forward_local_messsage(struct harbor *h, void *msg, int sz) {
+service_harbor.c (service-src) line 345 : dispatch_name_queue(struct harbor *h, struct keyvalue * node) {
+dispatch_name_queue in service_harbor.c (service-src) : 	struct harbor_msg_queue * queue = node->queue;
+dispatch_name_queue in service_harbor.c (service-src) : 	int harbor_id = handle >> HANDLE_REMOTE_SHIFT;
+dispatch_name_queue in service_harbor.c (service-src) : 	struct slave *s = &h->s[harbor_id];
+dispatch_name_queue in service_harbor.c (service-src) : 			skynet_error(context, "Drop message to %s (in harbor %d)",tmp,harbor_id);
+dispatch_name_queue in service_harbor.c (service-src) : 				struct harbor_msg * m;
+dispatch_name_queue in service_harbor.c (service-src) : 			if (harbor_id == (h->slave >> HANDLE_REMOTE_SHIFT)) {
+dispatch_name_queue in service_harbor.c (service-src) : 				// the harbor_id is local
+dispatch_name_queue in service_harbor.c (service-src) : 				struct harbor_msg * m;
+dispatch_name_queue in service_harbor.c (service-src) : 	struct harbor_msg * m;
+service_harbor.c (service-src) line 390 : dispatch_queue(struct harbor *h, int id) {
+dispatch_queue in service_harbor.c (service-src) : 	struct harbor_msg_queue *queue = s->queue;
+dispatch_queue in service_harbor.c (service-src) : 	struct harbor_msg * m;
+service_harbor.c (service-src) line 409 : push_socket_data(struct harbor *h, const struct skynet_socket_message * message) {
+push_socket_data in service_harbor.c (service-src) : 				skynet_error(h->ctx, "Invalid shakehand id (%d) from fd = %d , harbor = %d", id, fd, remote_id);
+push_socket_data in service_harbor.c (service-src) : 				close_harbor(h,id);
+push_socket_data in service_harbor.c (service-src) : 					skynet_error(h->ctx, "Message is too long from harbor %d", id);
+push_socket_data in service_harbor.c (service-src) : 					close_harbor(h,id);
+service_harbor.c (service-src) line 503 : update_name(struct harbor *h, const char name[GLOBALNAME_LENGTH], uint32_t handle) {
+service_harbor.c (service-src) line 517 : remote_send_handle(struct harbor *h, uint32_t source, uint32_t destination, int type, int session, const char * msg, size_t sz) {
+remote_send_handle in service_harbor.c (service-src) : 	int harbor_id = destination >> HANDLE_REMOTE_SHIFT;
+remote_send_handle in service_harbor.c (service-src) : 	if (harbor_id == h->id) {
+remote_send_handle in service_harbor.c (service-src) : 	struct slave * s = &h->s[harbor_id];
+remote_send_handle in service_harbor.c (service-src) : 			skynet_error(context, "Drop message to harbor %d from %x to %x (session = %d, msgsz = %d)",harbor_id, source, destination,session,(int)sz);
+service_harbor.c (service-src) line 556 : remote_send_name(struct harbor *h, uint32_t source, const char name[GLOBALNAME_LENGTH], int type, int session, const char * msg, size_t sz) {
+service_harbor.c (service-src) line 581 : handshake(struct harbor *h, int id) {
+service_harbor.c (service-src) line 589 : harbor_command(struct harbor * h, const char * msg, size_t sz, int session, uint32_t source) {
+service_harbor.c (service-src) line 641 : harbor_id(struct harbor *h, int fd) {
+mainloop in service_harbor.c (service-src) : 	struct harbor * h = ud;
+mainloop in service_harbor.c (service-src) : 			int id = harbor_id(h, message->id);
+mainloop in service_harbor.c (service-src) : 				report_harbor_down(h,id);
+mainloop in service_harbor.c (service-src) : 			int id = harbor_id(h, message->id);
+mainloop in service_harbor.c (service-src) : 		harbor_command(h, msg,sz,session,source);
+service_harbor.c (service-src) line 718 : harbor_init(struct harbor *h, struct skynet_context *ctx, const char * args) {
+harbor_init in service_harbor.c (service-src) : 	int harbor_id = 0;
+harbor_init in service_harbor.c (service-src) : 	sscanf(args,"%d %u", &harbor_id, &slave);
+harbor_init in service_harbor.c (service-src) : 	printf(" ---yefy ******************** harbor_id = %d, slave = %u \n", harbor_id, slave);
+harbor_init in service_harbor.c (service-src) : 	h->id = harbor_id;
+harbor_init in service_harbor.c (service-src) : 	skynet_harbor_start(ctx);
+skynet.h (skynet-src) line 35 : int skynet_isremote(struct skynet_context *, uint32_t handle, int * harbor);
+handle_storage in skynet_handle.c (skynet-src) : 	uint32_t harbor;
+skynet_handle_register in skynet_handle.c (skynet-src) : 				handle |= s->harbor;
+skynet_handle.c (skynet-src) line 247 : skynet_handle_init(int harbor) {
+skynet_handle_init in skynet_handle.c (skynet-src) : 	s->harbor = (uint32_t) (harbor & 0xff) << HANDLE_REMOTE_SHIFT;
+skynet_handle.h (skynet-src) line 20 : void skynet_handle_init(int harbor);
+skynet_harbor.c (skynet-src) line 2 : #include "skynet_harbor.h"
+skynet_harbor.c (skynet-src) line 20 : skynet_harbor_send(struct remote_message *rmsg, uint32_t source, int session) {
+skynet_harbor.c (skynet-src) line 27 : skynet_harbor_message_isremote(uint32_t handle) {
+skynet_harbor.c (skynet-src) line 34 : skynet_harbor_init(int harbor) {
+skynet_harbor_init in skynet_harbor.c (skynet-src) : 	HARBOR = (unsigned int)harbor << HANDLE_REMOTE_SHIFT;
+skynet_harbor.c (skynet-src) line 39 : skynet_harbor_start(void *ctx) {
+skynet_harbor_start in skynet_harbor.c (skynet-src) : 	printf(" ---yefy ******************** skynet_harbor_start \n");
+skynet_harbor_start in skynet_harbor.c (skynet-src) : 	// It will be released at last by calling skynet_harbor_exit
+skynet_harbor.c (skynet-src) line 48 : skynet_harbor_exit() {
+skynet_harbor.h (skynet-src) line 22 : void skynet_harbor_send(struct remote_message *rmsg, uint32_t source, int session);
+skynet_harbor.h (skynet-src) line 23 : int skynet_harbor_message_isremote(uint32_t handle);
+skynet_harbor.h (skynet-src) line 24 : void skynet_harbor_init(int harbor);
+skynet_harbor.h (skynet-src) line 25 : void skynet_harbor_start(void * ctx);
+skynet_harbor.h (skynet-src) line 26 : void skynet_harbor_exit();
+skynet_config in skynet_imp.h (skynet-src) : 	int harbor;
+main in skynet_main.c (skynet-src) : 	config.harbor = optint("harbor", 1);
+skynet_server.c (skynet-src) line 8 : #include "skynet_harbor.h"
+skynet_server.c (skynet-src) line 254 : skynet_isremote(struct skynet_context * ctx, uint32_t handle, int * harbor) {
+skynet_isremote in skynet_server.c (skynet-src) : 	int ret = skynet_harbor_message_isremote(handle);
+skynet_isremote in skynet_server.c (skynet-src) : 	if (harbor) {
+skynet_isremote in skynet_server.c (skynet-src) : 		*harbor = (int)(handle >> HANDLE_REMOTE_SHIFT);
+skynet_send in skynet_server.c (skynet-src) : 	if (skynet_harbor_message_isremote(destination)) {
+skynet_send in skynet_server.c (skynet-src) : 		skynet_harbor_send(rmsg, source, session);
+skynet_sendname in skynet_server.c (skynet-src) : 		skynet_harbor_send(rmsg, source, session);
+skynet_socket.c (skynet-src) line 7 : #include "skynet_harbor.h"
+skynet_start.c (skynet-src) line 11 : #include "skynet_harbor.h"
+skynet_start in skynet_start.c (skynet-src) : 	skynet_harbor_init(config->harbor);
+skynet_start in skynet_start.c (skynet-src) : 	skynet_handle_init(config->harbor);
+skynet_start in skynet_start.c (skynet-src) : 	// harbor_exit may call socket send, so it should exit before socket_free
+skynet_start in skynet_start.c (skynet-src) : 	skynet_harbor_exit();

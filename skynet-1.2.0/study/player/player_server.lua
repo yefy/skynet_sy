@@ -1,35 +1,39 @@
 local skynet = require "skynet"
 require "skynet.manager"	-- import skynet.register
-require "common/proto_create"
-local protobuf = require "pblib/protobuf"
 local log = require "common/log"
+local queue = require "skynet.queue"
+local cs = queue()  -- cs 是一个执行队列
 
 local CMD = {}
+local uidAgent = {}
 
-function  CMD.login(data)
-	local rLoginData = data["base.Login"]
-	log.printTable(log.fatalLevel(), {{rLoginData, "rLoginData"}})
-	return
+function  CMD.getAgent(uid)
+	local agent = uidAgent[uid]
+	if not agent then
+		agent = skynet.newservice("player_agent")
+		uidAgent[uid] = agent
+	end
+	log.fatal("agent", agent)
+	return agent
 end
 
-function  CMD.chat(data)
-	local rChatData = data["base.Chat"]
-	log.printTable(log.fatalLevel(), {{rChatData, "rChatData"}})
+function  CMD.clearAgent(serverName)
+	for _, agent in pairs(uidAgent) do
+		skynet.send(agent, "lua", "clearAgent", serverName)
+	end
 end
 
 skynet.start(function()
-	skynet.dispatch("lua", function(_,_, msg)
-		local rHeadMessage, rHeadSize, rMsg = string.unpack_package(msg)
-		local rHeadData = protobuf.decode("base.Head", rHeadMessage)
-		for _, _protoMessage in ipairs(rHeadData.protoMessages) do
-			local rMessage, rMessageSize, rMsg = string.unpack_package(rMsg)
-			local rData = protobuf.decode(_protoMessage, rMessage)
-			rHeadData[_protoMessage] = rData
+	skynet.dispatch("lua", function(_,_, command, ...)
+		log.fatal("command, ...", command, log.getArgvData(...))
+		local func = CMD[command]
+		if not func then
+			log.error("nil func command", command)
+			skynet.ret()
+			return
+		else
+			skynet.ret(skynet.pack(cs(func,...)))
 		end
-		log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
-		local f = CMD[rHeadData.command]
-		skynet.ret(skynet.pack(f(rHeadData)))
-
 	end)
-	skynet.register "chat_server"
+	skynet.register "player_server"
 end)

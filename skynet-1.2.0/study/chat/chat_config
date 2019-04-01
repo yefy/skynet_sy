@@ -4,7 +4,7 @@ include "chat_config.path"
 thread = 8
 logger = nil
 logpath = "."
-harbor = 2
+harbor = 3
 address = "127.0.0.1:2702"
 master = "127.0.0.1:2601"
 start = "chat_main"	-- main script

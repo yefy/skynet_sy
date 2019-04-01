@@ -878,3 +878,4 @@ void
 skynet_profile_enable(int enable) {
 	G_NODE.profile = (bool)enable;
 }
+

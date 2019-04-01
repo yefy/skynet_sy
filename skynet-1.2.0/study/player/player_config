@@ -4,7 +4,7 @@ include "player_config.path"
 thread = 8
 logger = nil
 logpath = "."
-harbor = 3
+harbor = 2
 address = "127.0.0.1:2703"
 master = "127.0.0.1:2601"
 start = "player_main"	-- main script

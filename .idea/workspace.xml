@@ -2,8 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d63a224f-028d-4149-b829-c6f0d38db07a" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/run.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/pblib/protobuf.lua" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/pblib/protobuf.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/skynet-1.2.0.si4project/cache/parse/skynet-src_skynet_server.c.sisc" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/skynet-1.2.0.si4project/cache/parse/skynet-src_skynet_server.c.sisc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/skynet-1.2.0.si4project/skynet-1.2.0.SearchResults" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/skynet-1.2.0.si4project/skynet-1.2.0.SearchResults" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/skynet-1.2.0.si4project/skynet-1.2.0.sip_sym" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/skynet-1.2.0.si4project/skynet-1.2.0.sip_sym" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/skynet-1.2.0.si4project/skynet-1.2.0.siwork" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/skynet-1.2.0.si4project/skynet-1.2.0.siwork" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/skynet-src/skynet_server.c" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/skynet-src/skynet_server.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_config" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_main.lua" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_main.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_server.lua" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_server.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/common/log.lua" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/common/log.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/player/player_config" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/player/player_config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/player/player_main.lua" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/player/player_main.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/player/player_server.lua" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/player/player_server.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/protos/base.proto" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/protos/base.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_agent.lua" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_agent.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_client.lua" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_client.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_main.lua" beforeDir="false" afterPath="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_main.lua" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -24,18 +39,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>R</find>
-      <find>N</find>
-      <find>addressharbor_service</find>
-      <find>queryname</find>
-      <find>new</find>
-      <find>harbor</find>
-      <find>harbor_service</find>
-      <find>running_thread</find>
-      <find>coroutine_pool</find>
-      <find>coroutine_resume</find>
-      <find>sleep</find>
-      <find>coroutine.resume</find>
       <find>skynet.profile</find>
       <find>coroutine</find>
       <find>fork</find>
@@ -54,6 +57,18 @@
       <find>resume</find>
       <find>CMD</find>
       <find>chat</find>
+      <find>client_fd</find>
+      <find>CMD.client_fd</find>
+      <find>csCmd</find>
+      <find>CsServer</find>
+      <find>newservice</find>
+      <find>register_protocol</find>
+      <find>client</find>
+      <find>message</find>
+      <find>PTYPE_LUA</find>
+      <find>getServerAgent</find>
+      <find>harbor</find>
+      <find>proxyConfig</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -62,16 +77,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_cluster.lua" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_config" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study_cluster/switch/switch_config" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study_cluster/switch/switch_cluster.lua" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study_cluster/switch/switch_main.lua" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_cluster.lua" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study_cluster/slave/slave_server.lua" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study_cluster/master/master_server.lua" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study_cluster/cluster/master_slave.lua" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study_cluster/master/master_config.path" />
         <option value="$PROJECT_DIR$/skynet-1.2.0/study_cluster/protos/base.proto" />
         <option value="$PROJECT_DIR$/skynet-1.2.0/study_cluster/slave/slave_config.path" />
         <option value="$PROJECT_DIR$/skynet-1.2.0/study_cluster/common/stringEx.lua" />
@@ -98,8 +103,6 @@
         <option value="$PROJECT_DIR$/skynet-1.2.0/examples/main1.lua" />
         <option value="$PROJECT_DIR$/skynet-1.2.0/examples/main_log.lua" />
         <option value="$PROJECT_DIR$/skynet-1.2.0/study_cluster/master/master_main.lua" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_main.lua" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_main.lua" />
         <option value="$PROJECT_DIR$/skynet-1.2.0/service/cslave.lua" />
         <option value="$PROJECT_DIR$/skynet-1.2.0/service/launcher.lua" />
         <option value="$PROJECT_DIR$/skynet-1.2.0/lualib/skynet/manager.lua" />
@@ -111,8 +114,20 @@
         <option value="$PROJECT_DIR$/skynet-1.2.0/examples/client.lua" />
         <option value="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_server_harbor.lua" />
         <option value="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_server_harbor.lua" />
-        <option value="$PROJECT_DIR$/skynet-1.2.0/study/player/player_config" />
         <option value="$PROJECT_DIR$/skynet-1.2.0/study/player/player_config.path" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_main.lua" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/player/player_main.lua" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_main.lua" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/player/player_config" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_agent.lua" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_server.lua" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/player/player_server.lua" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/player/player_agent.lua" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_agent.lua" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_config" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_client.lua" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/protos/base.proto" />
+        <option value="$PROJECT_DIR$/skynet-1.2.0/study/common/functions.lua" />
       </list>
     </option>
   </component>
@@ -122,7 +137,7 @@
       <select />
     </treeState>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="120" />
     <option name="y" value="65" />
     <option name="width" value="1545" />
@@ -134,8 +149,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="AndroidView" />
       <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -152,34 +167,7 @@
               <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
               <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
               <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
-              <item name="examples" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
-              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
-              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
               <item name="lualib" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
-              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
-              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
-              <item name="lualib" type="462c0819:PsiDirectoryNode" />
-              <item name="http" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
-              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
-              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
-              <item name="lualib" type="462c0819:PsiDirectoryNode" />
-              <item name="skynet" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
-              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
-              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
-              <item name="lualib" type="462c0819:PsiDirectoryNode" />
-              <item name="snax" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
@@ -191,7 +179,34 @@
               <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
               <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
               <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
+              <item name="skynet-1.2.0.si4project" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
+              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
+              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
+              <item name="skynet-1.2.0.si4project" type="462c0819:PsiDirectoryNode" />
+              <item name="Backup" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
+              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
+              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
               <item name="study" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
+              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
+              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
+              <item name="study" type="462c0819:PsiDirectoryNode" />
+              <item name="chat" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
+              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
+              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
+              <item name="study" type="462c0819:PsiDirectoryNode" />
+              <item name="common" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
@@ -200,11 +215,38 @@
               <item name="study" type="462c0819:PsiDirectoryNode" />
               <item name="player" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
+              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
+              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
+              <item name="study" type="462c0819:PsiDirectoryNode" />
+              <item name="protos" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
+              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
+              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
+              <item name="study" type="462c0819:PsiDirectoryNode" />
+              <item name="switch" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
+              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
+              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
+              <item name="study_cluster" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="skynet_sy" type="b2602c69:ProjectViewProjectNode" />
+              <item name="skynet_sy" type="462c0819:PsiDirectoryNode" />
+              <item name="skynet-1.2.0" type="462c0819:PsiDirectoryNode" />
+              <item name="study_cluster" type="462c0819:PsiDirectoryNode" />
+              <item name="common" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
+      <pane id="AndroidView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -287,7 +329,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -302,9 +344,8 @@
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info id="Capture Tool" order="6" />
       <window_info id="Designer" order="3" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.7001477" visible="true" weight="0.2627346" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32922733" />
-      <window_info id="Structure" order="1" sideWeight="0.29985228" side_tool="true" visible="true" weight="0.2627346" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.69652855" visible="true" weight="0.21481876" />
+      <window_info id="Structure" order="1" sideWeight="0.30347145" side_tool="true" visible="true" weight="0.21481876" />
       <window_info anchor="right" id="Ant Build" order="1" sideWeight="0.49832028" weight="0.25" />
       <window_info id="UI Designer" order="4" />
       <window_info anchor="right" id="Theme Preview" order="5" />
@@ -315,6 +356,7 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32922733" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -330,57 +372,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/main_mongodb.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/main_log.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/main22.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/main2.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/main1.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/main.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/injectlaunch.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/globallog.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/config_log">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/config3">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/config2">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/config1">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/config.userlog">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/config.path">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/config.mysql">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/config.mc">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/clustername.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/cluster22.lua">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -448,30 +439,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_server.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_main.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/skynet-1.2.0/examples/client.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="184">
           <caret line="101" column="28" selection-start-line="101" selection-start-column="28" selection-end-line="101" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/lualib/snax/gateserver.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2438">
-          <caret line="36" column="14" selection-start-line="36" selection-start-column="14" selection-end-line="36" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/service/gate.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="276">
-          <caret line="27" column="8" lean-forward="true" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="8" />
         </state>
       </provider>
     </entry>
@@ -489,13 +460,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/lualib/skynet.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="467">
-          <caret line="387" column="7" selection-start-line="387" selection-start-column="7" selection-end-line="387" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/common/log.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="71">
@@ -510,6 +474,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_cluster.lua" />
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_server_harbor.lua" />
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_cluster.lua">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_config.path">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_config.path">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_server_harbor.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="207">
@@ -517,17 +492,54 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_watchdog.lua">
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_cluster.lua">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/protos/base.pb">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/common/proto_create.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="9" column="31" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
+        <state relative-caret-position="506">
+          <caret line="22" column="9" lean-forward="true" selection-start-line="22" selection-start-column="9" selection-end-line="22" selection-end-column="9" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_main.lua">
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_main.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="15" column="37" lean-forward="true" selection-start-line="15" selection-start-column="37" selection-end-line="15" selection-end-column="37" />
+        <state relative-caret-position="23">
+          <caret line="1" selection-start-line="1" selection-end-line="1" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_config.path">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_main.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="184">
+          <caret line="8" column="17" lean-forward="true" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study_cluster/common/log.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="343" column="17" selection-start-line="343" selection-start-column="17" selection-end-line="343" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_server_harbor.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="138">
+          <caret line="6" selection-start-line="6" selection-end-line="6" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="138">
+          <caret line="6" column="10" selection-start-line="6" selection-start-column="10" selection-end-line="6" selection-end-column="10" />
         </state>
       </provider>
     </entry>
@@ -538,48 +550,114 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_server_harbor.lua">
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_watchdog.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="605">
-          <caret line="41" column="33" selection-start-line="41" selection-start-column="33" selection-end-line="41" selection-end-column="33" />
+        <state relative-caret-position="989">
+          <caret line="61" column="34" selection-start-line="61" selection-start-column="30" selection-end-line="61" selection-end-column="34" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_cluster.lua">
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_main.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/lualib/snax/gateserver.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="271">
+          <caret line="58" column="27" selection-start-line="58" selection-start-column="20" selection-end-line="58" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/service/gate.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="682">
+          <caret line="100" column="14" selection-start-line="100" selection-start-column="14" selection-end-line="100" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_agent_2.lua">
       <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_server.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="414">
+          <caret line="18" column="21" lean-forward="true" selection-start-line="18" selection-start-column="21" selection-end-line="18" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_server.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="498">
+          <caret line="23" column="3" lean-forward="true" selection-start-line="23" selection-start-column="3" selection-end-line="23" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/skynet-1.2.0.si4project/Backup/service_harbor(3840).c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1357">
+          <caret line="1" column="18" selection-start-line="1" selection-start-column="18" selection-end-line="1" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/service/bootstrap.lua">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/lualib/skynet.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="15" column="40" lean-forward="true" selection-start-line="15" selection-start-column="40" selection-end-line="15" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="138">
+          <caret line="6" column="6" selection-start-line="6" selection-end-line="6" selection-end-column="6" />
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_agent.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="26" column="50" lean-forward="true" selection-start-line="26" selection-start-column="50" selection-end-line="26" selection-end-column="50" />
+        <state relative-caret-position="-578">
+          <caret line="17" column="32" lean-forward="true" selection-start-line="17" selection-start-column="32" selection-end-line="17" selection-end-column="32" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_server_harbor.lua">
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/switch/switch_client.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="644">
-          <caret line="31" column="37" lean-forward="true" selection-start-line="31" selection-start-column="37" selection-end-line="31" selection-end-column="37" />
+        <state relative-caret-position="424">
+          <caret line="127" column="56" selection-start-line="127" selection-start-column="56" selection-end-line="127" selection-end-column="56" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_main.lua">
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/chat/chat_agent.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="69">
-          <caret line="3" column="20" selection-start-line="3" selection-start-column="20" selection-end-line="3" selection-end-column="20" />
+        <state relative-caret-position="460">
+          <caret line="20" column="40" lean-forward="true" selection-start-line="20" selection-start-column="40" selection-end-line="20" selection-end-column="40" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_config.path">
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/protos/base.proto">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="92">
-          <caret line="4" column="61" lean-forward="true" selection-start-line="4" selection-start-column="61" selection-end-line="4" selection-end-column="61" />
+        <state relative-caret-position="276">
+          <caret line="12" column="41" lean-forward="true" selection-start-line="12" selection-start-column="41" selection-end-line="12" selection-end-column="41" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_config">
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/player/player_agent.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="322">
-          <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
+        <state relative-caret-position="562">
+          <caret line="51" column="64" lean-forward="true" selection-start-line="51" selection-start-column="64" selection-end-line="51" selection-end-column="64" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skynet-1.2.0/study/common/functions.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="299">
+          <caret line="13" column="41" lean-forward="true" selection-start-line="13" selection-start-column="41" selection-end-line="13" selection-end-column="41" />
         </state>
       </provider>
     </entry>

@@ -9,7 +9,8 @@ message Head {
     required string command         = 4;
 	required int32  sourceUid       = 5;
 	required int32  destUid         = 6;
-	repeated string protoMessages    = 7;
+	required int32  error           = 7;
+	repeated string protoMessages    = 8;
 }
 
 message Login{

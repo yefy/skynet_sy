@@ -5,10 +5,9 @@ local protobuf = require "pblib/protobuf"
 local log = require "common/log"
 require("common/stringEx")
 
-local CMD = {}
-local client_fd = -1
-local playerAgent
-local uid
+local CMD = {
+	client_fd = -1,
+}
 
 local function package(msg)
 	local package = string.pack(">s2", msg)
@@ -16,27 +15,16 @@ local function package(msg)
 end
 
 local function send_package(package)
-	socket.write(client_fd, package)
+	socket.write(CMD.client_fd, package)
 end
 
 function CMD.client(fd, msg, sz)
-	assert(fd == client_fd)
+	assert(fd == CMD.client_fd)
 	local rMessage = skynet.tostring(msg, sz)
 	local rHeadMessage, rHeadSize, _ = string.unpack_package(rMessage)
 	local rHeadData = protobuf.decode("base.Head", rHeadMessage)
 	log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
-	if uid and uid ~= rHeadData.sourceUid then
-		log.error("uid, rHeadData.sourceUid",uid ~= rHeadData.sourceUid)
-		return
-	end
-	uid = uid or rHeadData.sourceUid
-	if not playerAgent then
-		playerAgent = skynet.call("player_server", "lua", "getAgent", uid)
-	end
-	log.fatal("playerAgent", playerAgent)
-	log.fatal("switch_agent self", skynet.self())
-	--skynet.call(playerAgent, "lua",  rMessage)
-	skynet.call(playerAgent, "client", rMessage)
+	skynet.send(rHeadData.server, "lua", rMessage)
 end
 
 function CMD.server(conf)
@@ -47,12 +35,12 @@ function CMD.start(conf)
 	local fd = conf.client
 	local gate = conf.gate
 	local watchdog = conf.watchdog
-	client_fd = fd
-	skynet.call(gate, "lua", "forward", client_fd)
+	CMD.client_fd = fd
+	skynet.call(gate, "lua", "forward", CMD.client_fd)
 end
 
 function CMD.disconnect()
-	log.fatal("disconnect : client_fd", client_fd)
+	log.fatal("disconnect : client_fd", CMD.client_fd)
 	skynet.exit()
 end
 
@@ -60,7 +48,6 @@ end
 skynet.register_protocol {
 	name = "client",
 	id = skynet.PTYPE_CLIENT,
-	pack = skynet.pack,
 	unpack = function (...)
 		return ...
 	end,

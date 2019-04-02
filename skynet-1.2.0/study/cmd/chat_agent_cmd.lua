@@ -1,7 +1,5 @@
 local cmd = {
-    chat = {request = "base.Chat", respond = "base.Chat"}
+    server = "chat_agent",
+    chat = {request = "base.Chat", respond = "base.Chat"},
 }
-
-
-
-return "chat_agent", cmd
+return cmd

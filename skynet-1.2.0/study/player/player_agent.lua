@@ -10,11 +10,11 @@ local CsServer = {
 	chat_server = queue(),
 }
 
-local CmdServer = {}
-local CmdServerName = {"cmd/chat_agent_cmd", "cmd/player_agent_cmd"}
-for _, v in pairs(CmdServerName) do
-	local serverName, value = require(v)
-	CmdServer[serverName] = value
+local ServerConfig = {}
+local ServerConfigPath = {"cmd/chat_agent_cmd", "cmd/player_agent_cmd"}
+for _, v in pairs(ServerConfigPath) do
+	local config = require(v)
+	ServerConfig[config.server] = config
 end
 
 local LoginAgent
@@ -30,9 +30,9 @@ local Agent = {
 local CMD = {}
 
 function  CMD.login(data)
-	local rLoginData = data["base.Login"]
-	log.printTable(log.fatalLevel(), {{rLoginData, "rLoginData"}})
-	return 0, rLoginData
+	local rLoginRequest = data.request
+	log.printTable(log.fatalLevel(), {{rLoginRequest, "rLoginRequest"}})
+	return 0, rLoginRequest
 end
 
 function  CMD.callServer(data)
@@ -52,13 +52,25 @@ end
 
 
 
-function  CMD.client(session, source, msg)
-	print("session, source, msg, sz", session, source, msg)
+function  CMD.client(session, source, msg, ...)
+	log.fatal("session, source, msg", session, source, msg)
 	local rHeadMessage, rHeadSize, rMsg = string.unpack_package(msg)
 	local rHeadData = protobuf.decode("base.Head", rHeadMessage)
-	local proto = CmdServer[rHeadData.server][rHeadData.command]
+	log.fatal("rHeadData.server, rHeadData.command", rHeadData.server, rHeadData.command)
+	local serverConfig = ServerConfig[rHeadData.server]
+	if not serverConfig then
+		log.error("not serverConfig")
+		return
+	end
+	local cmdConfig = serverConfig[rHeadData.command]
+	if not cmdConfig then
+		log.error("not cmdConfig")
+		return
+	end
+
+
 	local rMessage, rMessageSize, rMsg = string.unpack_package(rMsg)
-	local rData = protobuf.decode(proto.request, rMessage)
+	local rData = protobuf.decode(cmdConfig.request, rMessage)
 	rHeadData["request"] = rData
 
 	log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
@@ -73,29 +85,31 @@ function  CMD.client(session, source, msg)
 	local ret, data
 	if not cs then
 		ret, data = func(rHeadData)
-		skynet.ret(skynet.pack())
 	else
 		ret, data = cs(func, rHeadData)
-		skynet.ret(skynet.pack(cs(func, rHeadData)))
 	end
 	rHeadData.error = 0
+	rHeadData["request"] = nil
 	local rHeadMessage = protobuf.encode("base.Head",rHeadData)
 	local rHeadPackage = string.pack_package(rHeadMessage)
 	local rDataPackage = ""
 	if ret == 0 and data then
-		local rDataMessage = protobuf.encode(proto.request, data)
+		local rDataMessage = protobuf.encode(cmdConfig.respond, data)
 		rDataPackage = string.pack_package(rDataMessage)
 	end
-	skynet.ret(skynet.pack(string.pack_package(rHeadPackage .. rDataPackage)))
+	print("pa1111", rHeadPackage .. rDataPackage)
+	local pa = string.pack_package(rHeadPackage .. rDataPackage)
+	print("pa", pa)
+	skynet.ret(skynet.pack(pa))
 end
-
 
 skynet.register_protocol {
 	name = "client",
 	id = skynet.PTYPE_CLIENT,
+	pack = skynet.pack,
 	unpack = skynet.unpack,
-	dispatch = function (session, source, msg, sz)
-		CMD.client(session, source, msg, sz)
+	dispatch = function (session, source, msg)
+		CMD.client(session, source, msg)
 	end
 }
 

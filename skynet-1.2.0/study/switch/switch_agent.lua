@@ -33,11 +33,11 @@ function CMD.client(fd, msg, sz)
 	if not playerAgent then
 		playerAgent = skynet.call("player_server", "lua", "getAgent", uid)
 	end
-	log.fatal("playerAgent", playerAgent)
-	log.fatal("switch_agent self", skynet.self())
-	--skynet.call(playerAgent, "lua",  rMessage)
-	local package = skynet.call(playerAgent, "client", rMessage)
-	send_package(package)
+
+	log.fatal("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), playerAgent, uid, rHeadData.server, rHeadData.command)
+	local package, sz = skynet.call(playerAgent, "client", rMessage)
+	print("skynet.unpack(package, sz)", skynet.unpack(package, sz))
+	send_package(skynet.unpack(package, sz))
 end
 
 function CMD.server(conf)

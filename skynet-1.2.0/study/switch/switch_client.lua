@@ -99,7 +99,7 @@ local function sendLogin()
 		command = "login",
 		sourceUid = 1,
 		destUid = 1,
-		protoMessages = {"base.Login"},
+		error = 0,
 	}
 	local rLogin = {
 		password = "123456"
@@ -120,7 +120,7 @@ local function sendChat()
 		command = "chat",
 		sourceUid = 1,
 		destUid = 2,
-		protoMessages = {"base.Chat"},
+		error = 0,
 	}
 	local rChat = {
 		message = "chat_hello"
@@ -133,8 +133,14 @@ local function sendChat()
 end
 
 local function onRespond(msg, sz)
-	local rRespond = protobuf.decode("base.Respond", msg, sz);
-	log.printTable(log.fatalLevel(), {{rRespond, "rRespond"}})
+	local rHeadMessage, rHeadSize, msg  = unpack_package(msg)
+	local rHeadData = protobuf.decode("base.Head", rHeadMessage, rHeadSize);
+	log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
+	if rHeadData.server == "player_agent" and rHeadData.command == "login" then
+		local rHeadMessage, rHeadSize, msg  = unpack_package(msg)
+		local rHeadData = protobuf.decode("base.Login", rHeadMessage, rHeadSize);
+		log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
+	end
 end
 
 local function dispatch_package()
@@ -155,9 +161,9 @@ while true do
 	--socket.usleep(1000000)
 end
 ]]
-for i = 1, 10 do
-	--sendLogin()
-	sendChat()
+for i = 1, 1 do
+	sendLogin()
+	--sendChat()
 	--[[
 	sendChat()
 	log.fatal("sleep stat")

@@ -4,12 +4,18 @@ require "common/proto_create"
 local protobuf = require "pblib/protobuf"
 local log = require "common/log"
 local queue = require "skynet.queue"
---local cs = queue()  -- cs 是一个执行队列
-
+local cs = queue()  -- cs 是一个执行队列
+--[[
 local CsServer = {
 	player_agent = queue(),
 	chat_server = queue(),
 	message_server = queue(),
+}
+]]
+local CsServer = {
+	player_agent = cs,
+	chat_server = cs,
+	message_server = cs,
 }
 local ServerConfig = {}
 local ServerConfigPath = {"cmd/player_agent_cmd", "cmd/chat_agent_cmd", "cmd/message_agent_cmd"}

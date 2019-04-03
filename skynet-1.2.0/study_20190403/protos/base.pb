@@ -1,5 +1,5 @@
 
-³
+Ž
 
 base.protobase"²
 Head
@@ -13,6 +13,4 @@ base.protobase"²
 Login
 password (	Rpassword" 
 Chat
-message (	Rmessage"#
-Message
 message (	Rmessage

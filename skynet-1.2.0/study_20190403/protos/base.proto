@@ -19,7 +19,3 @@ message Login{
 message Chat{
 	required string 	message 	    = 1;
 }
-
-message Message{
-	required string 	message 	    = 1;
-}

@@ -117,7 +117,7 @@ local function sendChat()
 		ver = 1,
 		session = session,
 		server = "chat_server",
-		command = "chat",
+		command = "chat1",
 		sourceUid = 1,
 		destUid = 2,
 		error = 0,
@@ -130,27 +130,6 @@ local function sendChat()
 	local rChatMessage = protobuf.encode("base.Chat",rChat)
 	local rChatPackage = package(rChatMessage)
 	send_package(fd, package(rHeadPackage .. rChatPackage))
-end
-
-local function sendMessage()
-	session = session + 1
-	local rHead = {
-		ver = 1,
-		session = session,
-		server = "message_server",
-		command = "message",
-		sourceUid = 1,
-		destUid = 2,
-		error = 0,
-	}
-	local rMessage = {
-		message = "message_hello"
-	}
-	local rHeadMessage = protobuf.encode("base.Head",rHead)
-	local rHeadPackage = package(rHeadMessage)
-	local rMessageMessage = protobuf.encode("base.Message",rMessage)
-	local rMessagePackage = package(rMessageMessage)
-	send_package(fd, package(rHeadPackage .. rMessagePackage))
 end
 
 local function onRespond(msg, sz)
@@ -185,7 +164,6 @@ end
 for i = 1, 1 do
 	--sendLogin()
 	sendChat()
-	sendMessage()
 	--[[
 	sendChat()
 	log.fatal("sleep stat")

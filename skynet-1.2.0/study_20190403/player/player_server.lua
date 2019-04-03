@@ -23,6 +23,9 @@ function  CMD.clearAgent(serverName)
 	end
 end
 
+
+local traceback = debug.traceback
+
 local function xpcall_ret(ok, ...)
 	return ...
 end
@@ -30,7 +33,7 @@ end
 local function callFunc(command, ...)
 	local func =  CMD[command]
 	if not cs then
-		return xpcall_ret(xpcall(func, function() print(debug.traceback()) end, ...))
+		return xpcall_ret(xpcall(func, traceback, ...))
 	else
 		return cs(func, ...)
 	end

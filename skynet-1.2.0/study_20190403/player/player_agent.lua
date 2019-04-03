@@ -9,10 +9,9 @@ local queue = require "skynet.queue"
 local CsServer = {
 	player_agent = queue(),
 	chat_server = queue(),
-	message_server = queue(),
 }
 local ServerConfig = {}
-local ServerConfigPath = {"cmd/player_agent_cmd", "cmd/chat_agent_cmd", "cmd/message_agent_cmd"}
+local ServerConfigPath = {"cmd/chat_agent_cmd", "cmd/player_agent_cmd"}
 for _, v in pairs(ServerConfigPath) do
 	local config = require(v)
 	ServerConfig[config.server] = config
@@ -66,7 +65,7 @@ local function callFunc(server, command, ...)
 		func = callServer
 	end
 	if not cs then
-		return xpcall_ret(xpcall(func, function() print(debug.traceback()) end, ...))
+		return xpcall_ret(xpcall(func, traceback, ...))
 	else
 		return cs(func, server, command, ...)
 	end
@@ -135,7 +134,6 @@ skynet.register_protocol {
 
 skynet.start(function()
 	skynet.dispatch("lua", function(session, source, server, command, ...)
-		log.fatal("lua server, command", server, command)
 		skynet.ret(skynet.pack(callFunc(server, command, ...)))
 	end)
 end)

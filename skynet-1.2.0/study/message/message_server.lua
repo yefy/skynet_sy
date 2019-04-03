@@ -28,9 +28,9 @@ skynet.start(function()
 		skynet.ret(skynet.pack(callFunc(command,...)))
 	end)
 	for i = 1, 3 do
-		local agent = skynet.newservice("chat_agent")
+		local agent = skynet.newservice("message_agent")
 		table.insert(AgentArr, agent)
 	end
-	skynet.register "chat_server"
+	skynet.register "message_server"
 	skynet.send("player_server", "lua", "clearAgent", "chat_server")
 end)

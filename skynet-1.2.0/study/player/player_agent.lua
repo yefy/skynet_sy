@@ -1,35 +1,25 @@
 local skynet = require "skynet"
 local log = require "common/log"
+require "common/proto_create"
+local protobuf = require "pblib/protobuf"
+local queue = require "skynet.queue"
 local dispatch = require "common/dispatch"
 local Client = dispatch.Client
 local Server = dispatch.Server
 
-function  Client.parse(source, data)
-end
+math.randomseed(tostring(os.time()):reverse():sub(1, 6))
 
-
-function  Server.messageTest(source, data)
-	log.fatal("messageTest")
-	return 0, "messageTest"
-end
-
-dispatch.start()
-
-
-
-
-
-local skynet = require "skynet"
-require "skynet.manager"	-- import skynet.register
-require "common/proto_create"
-local protobuf = require "pblib/protobuf"
-local log = require "common/log"
-local queue = require "skynet.queue"
-
-local CsServer = {
-	player_agent = queue(),
-	chat_server = queue(),
-	message_server = queue(),
+local csMap = {
+	Client = {
+		player_agent = queue(),
+		chat_server = queue(),
+		message_server = queue(),
+	},
+	Server = {
+		player_agent = queue(),
+		chat_server = queue(),
+		message_server = queue(),
+	},
 }
 
 local ServerConfig = {}
@@ -39,40 +29,23 @@ for _, v in pairs(ServerConfigPath) do
 	ServerConfig[config.server] = config
 end
 
-local LoginAgent
-local OtherAgentMap = {
-}
-math.randomseed(tostring(os.time()):reverse():sub(1, 6))
 local ServerName = "player_agent"
+local AgentMap = {}
 
-local Agent = {
 
-}
-
-local CMD = {}
-
-function  CMD.login(data)
-	local rLoginRequest = data.request
-	log.printTable(log.fatalLevel(), {{rLoginRequest, "rLoginRequest"}})
-	return 0, rLoginRequest
-end
-
-function  CMD.clearAgent(serverName)
-	log.fatal("clearAgent serverName", serverName)
-	Agent[serverName] = nil
-	return 0
-end
-
-local function  callServer(server, command, ...)
-	local agentArr = Agent[server]
+local function  callServer(typeName, server, command, ...)
+	if typeName == "Client" then
+	else
+		typeName = "lua"
+	end
+	local agentArr = AgentMap[server]
 	if not agentArr then
 		_, agentArr = skynet.call(server, "lua", "getAgent")
-		Agent[server] = agentArr
+		AgentMap[server] = agentArr
 	end
 	local rand = math.random(1, #agentArr)
-	return skynet.call(agentArr[rand], "client", command, ...)
+	return skynet.call(agentArr[rand], typeName, command, ...)
 end
-
 
 local function xpcall_ret(typeName, command, ok, error, ...)
 	if not ok then
@@ -87,42 +60,41 @@ local function xpcall_ret(typeName, command, ok, error, ...)
 	return error, ...
 end
 
-local function callFunc(typeName, source, command, ...)
-	log.trace("typeName, source, command, ...", typeName, source, command, log.getArgvData(...))
-	local server =  TypeNames[typeName]
-	local func = server[command]
-	if not cs then
-		return xpcall_ret(typeName, command, xpcall(func, function() print(debug.traceback()) end, source, ...))
-	else
-		return cs(func, source, ...)
-	end
-end
-
-
-
-local traceback = debug.traceback
-local function xpcall_ret(ok, ...)
-	return ...
-end
-
-local function callFunc(server, command, ...)
-	local cs = CsServer[server]
+local function callFunc(typeName, server, command, ...)
+	local cs = csMap[typeName][server]
 	local func
 	if server == ServerName then
-		func = CMD[command]
+		if typeName == "Client" then
+			func = Client[command]
+		else
+			func = Server[command]
+		end
 	else
 		func = callServer
 	end
+
 	if not cs then
-		return xpcall_ret(xpcall(func, function() print(debug.traceback()) end, ...))
+		return xpcall_ret(typeName, command, xpcall(func, function() print(debug.traceback()) end, typeName, server, command, ...))
 	else
-		return cs(func, server, command, ...)
+		return cs(func, typeName, server, command, ...)
 	end
 end
 
 
-function  CMD.client(session, source, msg, ...)
-	log.fatal("session, source, msg", session, source, msg)
+function  Client.login(data)
+	local rLoginRequest = data.request
+	log.printTable(log.fatalLevel(), {{rLoginRequest, "rLoginRequest"}})
+	return 0, rLoginRequest
+end
+
+function  Client.clearAgent(serverName)
+	log.fatal("clearAgent serverName", serverName)
+	AgentMap[serverName] = nil
+	return 0
+end
+
+function  Client.client(source, msg)
+	log.fatal("source, msg", source, msg)
 	local rHeadMessage, rHeadSize, rMsg = string.unpack_package(msg)
 	local rHeadData = protobuf.decode("base.Head", rHeadMessage)
 	log.fatal("rHeadData.server, rHeadData.command", rHeadData.server, rHeadData.command)
@@ -155,7 +127,7 @@ function  CMD.client(session, source, msg, ...)
 
 	log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
 
-	local ret, data = callFunc(rHeadData.server, rHeadData.command, rHeadData)
+	local ret, data = callFunc("Client", rHeadData.server, rHeadData.command, rHeadData)
 	rHeadData.error = 0
 	rHeadData["request"] = nil
 	local rHeadMessage = protobuf.encode("base.Head",rHeadData)
@@ -168,22 +140,11 @@ function  CMD.client(session, source, msg, ...)
 	print("pa1111", rHeadPackage .. rDataPackage)
 	local pa = string.pack_package(rHeadPackage .. rDataPackage)
 	print("pa", pa)
-	skynet.ret(skynet.pack(pa))
+	return 0, pa
 end
 
-skynet.register_protocol {
-	name = "client",
-	id = skynet.PTYPE_CLIENT,
-	pack = skynet.pack,
-	unpack = skynet.unpack,
-	dispatch = function (session, source, msg)
-		xpcall(CMD.client, function() print(debug.traceback()) end, session, source, msg)
-	end
-}
+function  Server.server(source, ...)
+	return callFunc("Server", ...)
+end
 
-skynet.start(function()
-	skynet.dispatch("lua", function(session, source, server, command, ...)
-		log.fatal("lua server, command", server, command)
-		skynet.ret(skynet.pack(callFunc(server, command, ...)))
-	end)
-end)
+dispatch.start()

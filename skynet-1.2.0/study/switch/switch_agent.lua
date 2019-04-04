@@ -35,9 +35,10 @@ function CMD.client(fd, msg, sz)
 	end
 
 	log.fatal("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), playerAgent, uid, rHeadData.server, rHeadData.command)
-	local package, sz = skynet.call(playerAgent, "client", "parse", rMessage)
-	print("skynet.unpack(package, sz)", skynet.unpack(package, sz))
-	send_package(skynet.unpack(package, sz))
+	local package, sz = skynet.call(playerAgent, "client", "client", rMessage)
+	local error, pa = skynet.unpack(package, sz)
+	print("error, pa", error, pa)
+	send_package(pa)
 end
 
 function CMD.server(conf)

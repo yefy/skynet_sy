@@ -32,9 +32,33 @@ end
 local ServerName = "player_agent"
 local AgentMap = {}
 
+function  Client.login(source, data)
+	local rLoginRequest = data.request
+	log.printTable(log.fatalLevel(), {{rLoginRequest, "rLoginRequest"}})
+	return 0, rLoginRequest
+end
+
+function  Server.clearAgent(source, serverName)
+	log.fatal("clearAgent serverName", serverName)
+	AgentMap[serverName] = nil
+	return 0
+end
+
+
+local function  callPlayer(typeName, server, command, ...)
+	local func
+	if typeName == "Client" then
+		func = Client[command]
+	else
+		func = Server[command]
+	end
+	return func(skynet.self(),  ...)
+end
 
 local function  callServer(typeName, server, command, ...)
+	log.fatal("typeName, server, command", typeName, server, command)
 	if typeName == "Client" then
+		typeName = "client"
 	else
 		typeName = "lua"
 	end
@@ -47,50 +71,33 @@ local function  callServer(typeName, server, command, ...)
 	return skynet.call(agentArr[rand], typeName, command, ...)
 end
 
-local function xpcall_ret(typeName, command, ok, error, ...)
+local function xpcall_ret(typeName, server, command, ok, error, ...)
 	if not ok then
-		log.error("xpcall_ret : typeName, command", typeName, command)
+		log.error("xpcall_ret : typeName, server, command", typeName, server, command)
 		error = -1
 	end
 
 	if not error then
-		log.error("xpcall_ret error nil : typeName, command", typeName, command)
+		log.error("xpcall_ret error nil : typeName, server, command", typeName, server, command)
 		error = -1
 	end
 	return error, ...
 end
 
 local function callFunc(typeName, server, command, ...)
+	log.fatal("typeName, server, command", typeName, server, command)
 	local cs = csMap[typeName][server]
 	local func
 	if server == ServerName then
-		if typeName == "Client" then
-			func = Client[command]
-		else
-			func = Server[command]
-		end
+		func = callPlayer
 	else
 		func = callServer
 	end
-
 	if not cs then
-		return xpcall_ret(typeName, command, xpcall(func, function() print(debug.traceback()) end, typeName, server, command, ...))
+		return xpcall_ret(typeName, server, command, xpcall(func, function() print(debug.traceback()) end, typeName, server, command, ...))
 	else
 		return cs(func, typeName, server, command, ...)
 	end
-end
-
-
-function  Client.login(data)
-	local rLoginRequest = data.request
-	log.printTable(log.fatalLevel(), {{rLoginRequest, "rLoginRequest"}})
-	return 0, rLoginRequest
-end
-
-function  Client.clearAgent(serverName)
-	log.fatal("clearAgent serverName", serverName)
-	AgentMap[serverName] = nil
-	return 0
 end
 
 function  Client.client(source, msg)

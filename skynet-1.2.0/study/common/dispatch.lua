@@ -30,7 +30,6 @@ local function xpcall_ret(typeName, command, ok, error, ...)
 end
 
 local function callFunc(typeName, source, command, ...)
-	log.trace("typeName, source, command, ...", typeName, source, command, log.getArgvData(...))
 	local server =  TypeNames[typeName]
 	local func = server[command]
 	if not cs then

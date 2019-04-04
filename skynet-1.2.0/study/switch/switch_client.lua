@@ -183,7 +183,7 @@ while true do
 end
 ]]
 for i = 1, 1 do
-	--sendLogin()
+	sendLogin()
 	sendChat()
 	sendMessage()
 	--[[
@@ -193,7 +193,7 @@ for i = 1, 1 do
 	log.fatal("sleep end")
 	sendChat()
 	]]
-	socket.usleep(1000000)
 end
+socket.usleep(1000000)
 socket.usleep(1000000)
 dispatch_package()

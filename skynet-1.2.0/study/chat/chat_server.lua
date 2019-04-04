@@ -12,6 +12,7 @@ end
 dispatch.start(function ()
 	for i = 1, 3 do
 		local agent = skynet.newservice("chat_agent")
+		log.fatal("chat_server.lua agent", agent)
 		table.insert(AgentArr, agent)
 	end
 	skynet.register "chat_server"

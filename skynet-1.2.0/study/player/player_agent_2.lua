@@ -1,25 +1,4 @@
 local skynet = require "skynet"
-local log = require "common/log"
-local dispatch = require "common/dispatch"
-local Client = dispatch.Client
-local Server = dispatch.Server
-
-function  Client.parse(source, data)
-end
-
-
-function  Server.messageTest(source, data)
-	log.fatal("messageTest")
-	return 0, "messageTest"
-end
-
-dispatch.start()
-
-
-
-
-
-local skynet = require "skynet"
 require "skynet.manager"	-- import skynet.register
 require "common/proto_create"
 local protobuf = require "pblib/protobuf"

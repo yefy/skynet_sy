@@ -1,32 +1,16 @@
 local skynet = require "skynet"
-require "skynet.manager"	-- import skynet.register
 local log = require "common/log"
-local cs
+local dispatch = require "common/dispatch"
+local Client = dispatch.Client
+local Server = dispatch.Server
+
 local AgentArr = {}
 
-local CMD = {}
-
-function  CMD.getAgent()
-	return AgentArr
+function  Server.getAgent()
+	return 0, AgentArr
 end
 
-local function xpcall_ret(ok, ...)
-	return ...
-end
-
-local function callFunc(command, ...)
-	local func =  CMD[command]
-	if not cs then
-		return xpcall_ret(xpcall(func, function() print(debug.traceback()) end, ...))
-	else
-		return cs(func, ...)
-	end
-end
-
-skynet.start(function()
-	skynet.dispatch("lua", function(_,_, command, ...)
-		skynet.ret(skynet.pack(callFunc(command,...)))
-	end)
+dispatch.start(function ()
 	for i = 1, 3 do
 		local agent = skynet.newservice("message_agent")
 		table.insert(AgentArr, agent)

@@ -31,11 +31,11 @@ function CMD.client(fd, msg, sz)
 	end
 	uid = uid or rHeadData.sourceUid
 	if not playerAgent then
-		playerAgent = skynet.call("player_server", "lua", "getAgent", uid)
+		_, playerAgent = skynet.call("player_server", "lua", "getAgent", uid)
 	end
 
 	log.fatal("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), playerAgent, uid, rHeadData.server, rHeadData.command)
-	local package, sz = skynet.call(playerAgent, "client", rMessage)
+	local package, sz = skynet.call(playerAgent, "client", "parse", rMessage)
 	print("skynet.unpack(package, sz)", skynet.unpack(package, sz))
 	send_package(skynet.unpack(package, sz))
 end

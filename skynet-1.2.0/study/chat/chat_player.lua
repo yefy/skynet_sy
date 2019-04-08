@@ -1,10 +1,10 @@
 local skynet = require "skynet"
 local log = require "common/log"
-local dispatch = require "common/dispatch"
-local client = dispatch.client
-local server = dispatch.server
+local dispatch = require ("common/dispatch_class").new()
+local Client = dispatch.Client
+local Server = dispatch.Server
 
-function  client.chat(source, data)
+function  Client.chat(source, data)
 	local rChatRequest = data.request
 	log.printTable(log.fatalLevel(), {{rChatRequest, "rChatRequest"}})
 	log.fatal("start messageTest")
@@ -14,9 +14,7 @@ function  client.chat(source, data)
 	return 0, rChatRequest
 end
 
-function  server.chatTest(source, data)
+function  Server.chatTest(source, data)
 	log.fatal("chatTest")
 	return 0, "chatTest"
 end
-
-dispatch.start({"cmd/chat_agent_cmd"})

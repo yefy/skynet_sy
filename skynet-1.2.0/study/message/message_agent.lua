@@ -1,10 +1,10 @@
 local skynet = require "skynet"
 local log = require "common/log"
 local dispatch = require "common/dispatch"
-local Client = dispatch.Client
-local Server = dispatch.Server
+local client = dispatch.client
+local server = dispatch.server
 
-function  Client.message(source, data)
+function  client.message(source, data)
 	local rMessageRequest = data.request
 	log.printTable(log.fatalLevel(), {{rMessageRequest, "rMessageRequest"}})
 	log.fatal("start chatTest")
@@ -15,9 +15,9 @@ function  Client.message(source, data)
 end
 
 
-function  Server.messageTest(source, data)
+function  server.messageTest(source, data)
 	log.fatal("messageTest")
 	return 0, "messageTest"
 end
 
-dispatch.start()
+dispatch.start({"cmd/message_agent_cmd"})

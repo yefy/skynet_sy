@@ -4,8 +4,8 @@ include "message_config.path"
 thread = 8
 logger = nil
 logpath = "."
-harbor = 4
-address = "127.0.0.1:2704"
+harbor = 5
+address = "127.0.0.1:2705"
 master = "127.0.0.1:2601"
 start = "message_main"	-- main script
 bootstrap = "snlua bootstrap"	-- The service for bootstrap

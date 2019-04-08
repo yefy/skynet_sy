@@ -1,29 +1,20 @@
 local skynet = require "skynet"
 local log = require "common/log"
 local dispatch = require "common/dispatch"
-local Client = dispatch.Client
-local Server = dispatch.Server
+local client = dispatch.client
+local server = dispatch.server
 
-local uidAgent = {}
+local AgentArr = {}
 
-function  Server.getAgent(uid)
-	local agent = uidAgent[uid]
-	if not agent then
-		agent = skynet.newservice("player_agent")
-		uidAgent[uid] = agent
-	end
-	log.fatal("agent", agent)
-	return 0, agent
+function  server.getAgent(source)
+	return 0, AgentArr
 end
 
-function  Server.clearAgent(serverName)
-	for _, agent in pairs(uidAgent) do
-		skynet.send(agent, "lua", "player_agent", "clearAgent", serverName)
+dispatch.start(nil, function ()
+	for i = 1, 3 do
+		local agent = skynet.newservice("player_agent")
+		table.insert(AgentArr, agent)
 	end
-	return 0
-end
-
-dispatch.actionCs()
-dispatch.start(function ()
 	skynet.register "player_server"
+	skynet.send("server_server", "lua", "register", "player_server")
 end)

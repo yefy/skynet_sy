@@ -95,7 +95,7 @@ local function sendLogin()
 	local rHead = {
 		ver = 1,
 		session = session,
-		server = "player_agent",
+		server = "player_server",
 		command = "login",
 		sourceUid = 1,
 		destUid = 1,
@@ -157,7 +157,7 @@ local function onRespond(msg, sz)
 	local rHeadMessage, rHeadSize, msg  = unpack_package(msg)
 	local rHeadData = protobuf.decode("base.Head", rHeadMessage, rHeadSize);
 	log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
-	if rHeadData.server == "player_agent" and rHeadData.command == "login" then
+	if rHeadData.server == "player_server" and rHeadData.command == "login" then
 		local rHeadMessage, rHeadSize, msg  = unpack_package(msg)
 		local rHeadData = protobuf.decode("base.Login", rHeadMessage, rHeadSize);
 		log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})

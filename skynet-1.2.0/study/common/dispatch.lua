@@ -2,35 +2,40 @@ local skynet = require "skynet"
 require "skynet.manager"	-- import skynet.register
 local log = require "common/log"
 local queue = require "skynet.queue"
+require "common/proto_create"
+local protobuf = require "pblib/protobuf"
+require "system_error"
 
-local Dispatch = {}
-local Client = {}
-local Server = {}
-Dispatch.Client = Client
-Dispatch.Server = Server
+local dispatch = {}
+local client = {}
+local server = {}
+dispatch.client = client
+dispatch.server = server
 
-local TypeNames = {
-	Client = Client,
-	Server = Server,
+local typeNames = {
+	client = client,
+	server = server,
 }
+
+local serverConfig = {}
 
 local cs
 
 local function xpcall_ret(typeName, command, ok, error, ...)
 	if not ok then
 		log.error("xpcall_ret : typeName, command", typeName, command)
-		error = -1
+		error = systemError.invalid
 	end
 
 	if not error then
 		log.error("xpcall_ret error nil : typeName, command", typeName, command)
-		error = -1
+		error = systemError.invalidRet
 	end
 	return error, ...
 end
 
 local function callFunc(typeName, source, command, ...)
-	local server =  TypeNames[typeName]
+	local server =  typeNames[typeName]
 	local func = server[command]
 	if not cs then
 		return xpcall_ret(typeName, command, xpcall(func, function() print(debug.traceback()) end, source, ...))
@@ -40,29 +45,87 @@ local function callFunc(typeName, source, command, ...)
 end
 
 
-function  Dispatch.actionCs()
+local function callClient(source, head, pack)
+	local serverConfig = serverConfig[head.server]
+	if not serverConfig then
+		log.error("not serverConfig")
+		return systemError.invalidServer
+	end
+
+	local cmdConfig = serverConfig[head.command]
+	if not cmdConfig then
+		log.error("not cmdConfig")
+		return systemError.invalidCommand
+	end
+	local requestMsg, requestSize
+	requestMsg, requestSize, pack = string.unpack_package(pack)
+	local request = protobuf.decode(cmdConfig.request, requestMsg)
+	log.printTable(log.fatalLevel(), {{request, "request"}})
+	local ret, respond = callFunc("client", source, head.command, request)
+	local respondPack
+	if respond then
+		local respondMsg = protobuf.encode(cmdConfig.respond, respond)
+		respondPack = string.pack_package(respondMsg)
+	end
+
+	return ret, respond
+end
+
+
+function  dispatch.actionCs()
 	cs = queue()
 end
 
-function  Dispatch.start(func)
+function  dispatch.start(configPathArr, func)
 	skynet.register_protocol {
 		name = "client",
 		id = skynet.PTYPE_CLIENT,
 		pack = skynet.pack,
 		unpack = skynet.unpack,
-		dispatch = function (session, source, command, ...)
-			skynet.ret(skynet.pack(callFunc("Client", source, command, ...)))
+		dispatch = function (session, source, pack)
+			log.fatal("source, pack", source, pack)
+			local headMsg, headSize
+			headMsg, headSize, pack = string.unpack_package(pack)
+			local head = protobuf.decode("base.Head", headMsg)
+			head.error = systemError.success
+			log.printTable(log.fatalLevel(), {{head, "head"}})
+			local ok, ret, respondPack = xpcall(callClient, function() print(debug.traceback()) end, source, head, pack)
+			if not ok then
+				head.error = systemError.invalid
+			else
+				head.error = ret
+			end
+			headMsg = protobuf.encode("base.Head",head)
+			local headPack = string.pack_package(headMsg)
+			local dataMsg
+			if respondPack then
+				dataMsg = headPack .. respondPack
+			else
+				dataMsg = headPack
+			end
+			skynet.ret(skynet.pack(systemError.success, string.pack_package(dataMsg)))
 		end
 	}
 
 	skynet.start(function()
 		skynet.dispatch("lua", function(session, source, command, ...)
-			skynet.ret(skynet.pack(callFunc("Server", source, command, ...)))
+			skynet.ret(skynet.pack(callFunc("server", source, command, ...)))
 		end)
+		if configPathArr then
+			for _, v in pairs(configPathArr) do
+				local config = require(v)
+				if serverConfig[config.server] then
+					log.error("exist config.server", config.server)
+				else
+					serverConfig[config.server] = config
+				end
+			end
+		end
+
 		if func then
 			func()
 		end
 	end)
 end
 
-return Dispatch
+return dispatch

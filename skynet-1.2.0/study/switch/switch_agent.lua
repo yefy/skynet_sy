@@ -7,7 +7,7 @@ require("common/stringEx")
 
 local CMD = {}
 local client_fd = -1
-local playerAgent
+local serverAgent
 local uid
 
 local function package(msg)
@@ -30,12 +30,12 @@ function CMD.client(fd, msg, sz)
 		return
 	end
 	uid = uid or rHeadData.sourceUid
-	if not playerAgent then
-		_, playerAgent = skynet.call("player_server", "lua", "getAgent", uid)
+	if not serverAgent then
+		_, serverAgent = skynet.call("server_server", "lua", "getAgent", uid)
 	end
 
-	log.fatal("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), playerAgent, uid, rHeadData.server, rHeadData.command)
-	local package, sz = skynet.call(playerAgent, "client", "client", rMessage)
+	log.fatal("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), serverAgent, uid, rHeadData.server, rHeadData.command)
+	local package, sz = skynet.call(serverAgent, "client", "client", rMessage)
 	local error, pa = skynet.unpack(package, sz)
 	print("error, pa", error, pa)
 	send_package(pa)

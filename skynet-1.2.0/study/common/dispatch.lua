@@ -21,7 +21,7 @@ local serverConfig = {}
 
 local cs
 
-local function xpcall_ret(typeName, command, ok, error, ...)
+function xpcall_ret(typeName, command, ok, error, ...)
 	if not ok then
 		log.error("xpcall_ret : typeName, command", typeName, command)
 		error = systemError.invalid
@@ -76,40 +76,48 @@ function  dispatch.actionCs()
 	cs = queue()
 end
 
+
+function  dispatch.client(session, source, pack)
+	log.fatal("source, pack", source, pack)
+	local headMsg, headSize
+	headMsg, headSize, pack = string.unpack_package(pack)
+	local head = protobuf.decode("base.Head", headMsg)
+	head.error = systemError.success
+	log.printTable(log.fatalLevel(), {{head, "head"}})
+	local ok, ret, respondPack = xpcall(callClient, function() print(debug.traceback()) end, source, head, pack)
+	if not ok then
+		head.error = systemError.invalid
+	else
+		head.error = ret
+	end
+	headMsg = protobuf.encode("base.Head",head)
+	local headPack = string.pack_package(headMsg)
+	local dataMsg
+	if respondPack then
+		dataMsg = headPack .. respondPack
+	else
+		dataMsg = headPack
+	end
+	skynet.ret(skynet.pack(systemError.success, string.pack_package(dataMsg)))
+end
+
+function  dispatch.server(session, source, command, ...)
+	skynet.ret(skynet.pack(callFunc("server", source, command, ...)))
+end
+
+
 function  dispatch.start(configPathArr, func)
 	skynet.register_protocol {
 		name = "client",
 		id = skynet.PTYPE_CLIENT,
 		pack = skynet.pack,
 		unpack = skynet.unpack,
-		dispatch = function (session, source, pack)
-			log.fatal("source, pack", source, pack)
-			local headMsg, headSize
-			headMsg, headSize, pack = string.unpack_package(pack)
-			local head = protobuf.decode("base.Head", headMsg)
-			head.error = systemError.success
-			log.printTable(log.fatalLevel(), {{head, "head"}})
-			local ok, ret, respondPack = xpcall(callClient, function() print(debug.traceback()) end, source, head, pack)
-			if not ok then
-				head.error = systemError.invalid
-			else
-				head.error = ret
-			end
-			headMsg = protobuf.encode("base.Head",head)
-			local headPack = string.pack_package(headMsg)
-			local dataMsg
-			if respondPack then
-				dataMsg = headPack .. respondPack
-			else
-				dataMsg = headPack
-			end
-			skynet.ret(skynet.pack(systemError.success, string.pack_package(dataMsg)))
-		end
+		dispatch = dispatch.client,
 	}
 
 	skynet.start(function()
 		skynet.dispatch("lua", function(session, source, command, ...)
-			skynet.ret(skynet.pack(callFunc("server", source, command, ...)))
+			dispatch.server(session, source, command, ...)
 		end)
 		if configPathArr then
 			for _, v in pairs(configPathArr) do

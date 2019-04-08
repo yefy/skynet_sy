@@ -184,8 +184,8 @@ end
 ]]
 for i = 1, 1 do
 	sendLogin()
-	sendChat()
-	sendMessage()
+	--sendChat()
+	--sendMessage()
 	--[[
 	sendChat()
 	log.fatal("sleep stat")

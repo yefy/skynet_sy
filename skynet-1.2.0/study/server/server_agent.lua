@@ -9,34 +9,32 @@ local server = dispatch.server
 
 math.randomseed(tostring(os.time()):reverse():sub(1, 6))
 
-local csMap = {
-	client = {
-	},
-	server = {
-	},
-}
-
 local serverName = "server_server"
+local csMap = {}
 local AgentMap = {}
 
 function  server.registerMap(source, serverNameMap)
-	for serverName, _ in pairs(serverNameMap) do
-		if not csMap.client[serverName] then
-			csMap.client[serverName] = queue()
-		end
-		if not csMap.server[serverName] then
-			csMap.server[serverName] = queue()
+	for serverName, lock in pairs(serverNameMap) do
+		csMap[serverName] = {}
+		if lock == "lock" then
+			csMap[serverName].client = queue()
+			csMap[serverName].server = queue()
 		end
 	end
 	return 0
 end
 
-function  server.register(source, serverName)
-	log.fatal("register serverName", serverName)
+function  server.register(source, serverName, lock)
+	log.fatal("register serverName, lock", serverName, lock)
 	AgentMap[serverName] = nil
-	local serverNameMap = {}
-	serverNameMap[serverName] = true
-	server.registerMap(source, serverNameMap)
+	csMap[serverName] = csMap[serverName] or {}
+	if lock == "lock" then
+		csMap[serverName].client = csMap[serverName].client or queue()
+		csMap[serverName].server = csMap[serverName].server or queue()
+	else
+		csMap[serverName].client = nil
+		csMap[serverName].server = nil
+	end
 	return 0
 end
 
@@ -70,19 +68,24 @@ end
 local function xpcall_ret(typeName, server, command, ok, error, ...)
 	if not ok then
 		log.error("xpcall_ret : typeName, server, command", typeName, server, command)
-		error = -1
+		error = systemError.invalid
 	end
 
 	if not error then
 		log.error("xpcall_ret error nil : typeName, server, command", typeName, server, command)
-		error = -1
+		error = systemError.invalidRet
 	end
 	return error, ...
 end
 
 local function callFunc(typeName, server, command, ...)
 	log.fatal("typeName, server, command", typeName, server, command)
-	local cs = csMap[typeName][server]
+	if not csMap[server] then
+		return systemError.invalidServer
+	end
+
+	local cs = csMap[server][typeName]
+
 	local func
 	if server == serverName then
 		func = callPlayer
@@ -96,58 +99,21 @@ local function callFunc(typeName, server, command, ...)
 	end
 end
 
-function  client.client(source, msg)
-	log.fatal("source, msg", source, msg)
-	local rHeadMessage, rHeadSize, rMsg = string.unpack_package(msg)
-	local rHeadData = protobuf.decode("base.Head", rHeadMessage)
-	log.fatal("rHeadData.server, rHeadData.command", rHeadData.server, rHeadData.command)
-	local serverConfig = serverConfig[rHeadData.server]
-	if not serverConfig then
-		log.error("not serverConfig")
-		rHeadData.error = -1
-		local rHeadMessage = protobuf.encode("base.Head",rHeadData)
-		local rHeadPackage = string.pack_package(rHeadMessage)
-		local pa = string.pack_package(rHeadPackage)
-		print("pa", pa)
-		skynet.ret(skynet.pack(pa))
-		return
+function  dispatch.client(session, source, pack)
+	log.fatal("source, pack", source, pack)
+	local headMsg, headSize
+	headMsg, headSize, pack = string.unpack_package(pack)
+	local head = protobuf.decode("base.Head", headMsg)
+	if head then
+		log.printTable(log.fatalLevel(), {{head, "head"}})
+		skynet.ret(skynet.pack(callFunc("client", head.server, head.command, pack)))
+	else
+		skynet.ret(skynet.pack(systemError.invalid))
 	end
-	local cmdConfig = serverConfig[rHeadData.command]
-	if not cmdConfig then
-		log.error("not cmdConfig")
-		rHeadData.error = -2
-		local rHeadMessage = protobuf.encode("base.Head",rHeadData)
-		local rHeadPackage = string.pack_package(rHeadMessage)
-		local pa = string.pack_package(rHeadPackage)
-		print("pa", pa)
-		skynet.ret(skynet.pack(pa))
-		return
-	end
-
-	local rMessage, rMessageSize, rMsg = string.unpack_package(rMsg)
-	local rData = protobuf.decode(cmdConfig.request, rMessage)
-	rHeadData["request"] = rData
-
-	log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
-
-	local ret, data = callFunc("client", rHeadData.server, rHeadData.command, rHeadData)
-	rHeadData.error = 0
-	rHeadData["request"] = nil
-	local rHeadMessage = protobuf.encode("base.Head",rHeadData)
-	local rHeadPackage = string.pack_package(rHeadMessage)
-	local rDataPackage = ""
-	if ret == 0 and data then
-		local rDataMessage = protobuf.encode(cmdConfig.respond, data)
-		rDataPackage = string.pack_package(rDataMessage)
-	end
-	print("pa1111", rHeadPackage .. rDataPackage)
-	local pa = string.pack_package(rHeadPackage .. rDataPackage)
-	print("pa", pa)
-	return 0, pa
 end
 
-function  server.server(source, ...)
-	return callFunc("server", ...)
+function  dispatch.server(session, source, ...)
+	skynet.ret(skynet.pack(callFunc("server", ...)))
 end
 
 dispatch.start()

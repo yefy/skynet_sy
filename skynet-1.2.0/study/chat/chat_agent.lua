@@ -9,7 +9,7 @@ function  client.chat(source, data)
 	log.printTable(log.fatalLevel(), {{rChatRequest, "rChatRequest"}})
 	log.fatal("start messageTest")
 	skynet.sleep(100)
-	local _, str = skynet.call(source, "lua", "server", "message_server", "messageTest")
+	local _, str = skynet.call(source, "lua", "message_server", "messageTest")
 	log.fatal("end messageTest str", str)
 	return 0, rChatRequest
 end

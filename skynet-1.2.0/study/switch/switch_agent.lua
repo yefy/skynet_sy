@@ -19,26 +19,26 @@ local function send_package(package)
 	socket.write(client_fd, package)
 end
 
-function CMD.client(fd, msg, sz)
+function CMD.client(fd, pack, packSize)
 	assert(fd == client_fd)
-	local rMessage = skynet.tostring(msg, sz)
-	local rHeadMessage, rHeadSize, _ = string.unpack_package(rMessage)
-	local rHeadData = protobuf.decode("base.Head", rHeadMessage)
-	log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
-	if uid and uid ~= rHeadData.sourceUid then
-		log.error("uid, rHeadData.sourceUid",uid ~= rHeadData.sourceUid)
+	pack = skynet.tostring(pack, packSize)
+	local headMsg, headSize, _ = string.unpack_package(pack)
+	local head = protobuf.decode("base.Head", headMsg)
+	log.printTable(log.fatalLevel(), {{head, "head"}})
+	if uid and uid ~= head.sourceUid then
+		log.error("uid, rHeadData.sourceUid",uid ~= head.sourceUid)
 		return
 	end
-	uid = uid or rHeadData.sourceUid
+	uid = uid or head.sourceUid
 	if not serverAgent then
 		_, serverAgent = skynet.call("server_server", "lua", "getAgent", uid)
 	end
 
-	log.fatal("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), serverAgent, uid, rHeadData.server, rHeadData.command)
-	local package, sz = skynet.call(serverAgent, "client", "client", rMessage)
-	local error, pa = skynet.unpack(package, sz)
-	print("error, pa", error, pa)
-	send_package(pa)
+	log.fatal("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), serverAgent, uid, head.server, head.command)
+	pack, packSize = skynet.call(serverAgent, "client", pack)
+	local error, pack = skynet.unpack(pack, packSize)
+	print("error, pack", error, pack)
+	send_package(pack)
 end
 
 function CMD.server(conf)

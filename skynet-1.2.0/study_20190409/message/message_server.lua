@@ -12,9 +12,9 @@ end
 
 dispatch.start(nil, function ()
 	for i = 1, 3 do
-		local agent = skynet.newservice("player_agent")
+		local agent = skynet.newservice("message_agent")
 		table.insert(AgentArr, agent)
 	end
-	skynet.register "player_server"
-	skynet.call("server_server", "lua", "register", "player_server")
+	skynet.register "message_server"
+	skynet.send("server_server", "lua", "register", "message_server")
 end)

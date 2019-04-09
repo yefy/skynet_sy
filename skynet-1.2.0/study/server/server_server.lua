@@ -14,7 +14,7 @@ function  server.getAgent(source, uid)
 		skynet.call(agent, "lua", "server_server", "registerMap", serverMap)
 		uidAgent[uid] = agent
 	end
-	log.fatal("agent", agent)
+	log.trace("agent", agent)
 	return 0, agent
 end
 
@@ -30,5 +30,4 @@ end
 dispatch.actionCs()
 dispatch.start(nil, function ()
 	skynet.register "server_server"
-	--server.register(skynet.self(), "server_server")
 end)

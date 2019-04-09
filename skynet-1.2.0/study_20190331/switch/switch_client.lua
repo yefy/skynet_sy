@@ -134,7 +134,7 @@ end
 
 local function onRespond(msg, sz)
 	local rRespond = protobuf.decode("base.Respond", msg, sz);
-	log.printTable(log.fatalLevel(), {{rRespond, "rRespond"}})
+	log.printTable(log.allLevel(), {{rRespond, "rRespond"}})
 end
 
 local function dispatch_package()

@@ -6,11 +6,10 @@ local server = dispatch.server
 
 function  client.message(source, data)
 	local rMessageRequest = data
-	log.printTable(log.fatalLevel(), {{rMessageRequest, "rMessageRequest"}})
-	log.fatal("start chatTest")
-	skynet.sleep(100)
+	log.printTable(log.allLevel(), {{rMessageRequest, "rMessageRequest"}})
+	log.trace("start chatTest")
 	local _,str = skynet.call(source, "lua", "chat_server", "chatTest")
-	log.fatal("end chatTest str", str)
+	log.trace("end chatTest str", str)
 	return 0, rMessageRequest
 end
 

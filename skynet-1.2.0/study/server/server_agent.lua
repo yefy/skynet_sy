@@ -57,7 +57,7 @@ local function  callPlayer(typeName, serverName, command, ...)
 end
 
 local function  callServer(typeName, server, command, pack)
-	log.fatal("typeName, server, command", typeName, server, command)
+	log.trace("typeName, server, command", typeName, server, command)
 	if typeName == "client" then
 		typeName = "client"
 	else
@@ -86,7 +86,7 @@ local function xpcall_ret(typeName, server, command, ok, error, ...)
 end
 
 local function callFunc(typeName, server, command, ...)
-	log.fatal("typeName, server, command", typeName, server, command)
+	log.trace("typeName, server, command", typeName, server, command)
 	if not csMap[server] then
 		log.error("not csMap[server]")
 		return systemError.invalidServer
@@ -108,14 +108,14 @@ local function callFunc(typeName, server, command, ...)
 end
 
 function  dispatch.toClient(session, source, pack)
-	log.fatal("source, pack", source, pack)
+	log.trace("source, pack", source, pack)
 	local headMsg, headSize, _ = string.unpack_package(pack)
 	local head = protobuf.decode("base.Head", headMsg)
 	if head then
-		log.printTable(log.fatalLevel(), {{head, "head"}})
+		log.printTable(log.allLevel(), {{head, "head"}})
 		skynet.ret(skynet.pack(callFunc("client", head.server, head.command, pack)))
 	else
-		log.fatal("parse head nil")
+		log.error("parse head nil")
 		skynet.ret(skynet.pack(systemError.invalid))
 	end
 end

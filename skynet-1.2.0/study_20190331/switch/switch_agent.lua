@@ -23,7 +23,7 @@ function CMD.client(fd, msg, sz)
 	local rMessage = skynet.tostring(msg, sz)
 	local rHeadMessage, rHeadSize, _ = string.unpack_package(rMessage)
 	local rHeadData = protobuf.decode("base.Head", rHeadMessage)
-	log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
+	log.printTable(log.allLevel(), {{rHeadData, "rHeadData"}})
 	skynet.send(rHeadData.server, "lua", rMessage)
 end
 

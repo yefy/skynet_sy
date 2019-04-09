@@ -24,7 +24,7 @@ function CMD.client(fd, pack, packSize)
 		return
 	end
 
-	log.printTable(log.fatalLevel(), {{head, "head"}})
+	log.printTable(log.allLevel(), {{head, "head"}})
 	if uid and uid ~= head.sourceUid then
 		log.error("uid, rHeadData.sourceUid",uid ~= head.sourceUid)
 		return
@@ -34,7 +34,7 @@ function CMD.client(fd, pack, packSize)
 		_, serverAgent = skynet.call("server_server", "lua", "getAgent", uid)
 	end
 
-	log.fatal("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), serverAgent, uid, head.server, head.command)
+	log.trace("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), serverAgent, uid, head.server, head.command)
 	pack, packSize = skynet.call(serverAgent, "client", pack)
 	local error, pack = skynet.unpack(pack, packSize)
 	print("error, pack", error, pack)

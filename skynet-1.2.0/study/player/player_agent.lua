@@ -6,7 +6,7 @@ local server = dispatch.server
 
 function  client.login(source, data)
 	local rLoginRequest = data
-	log.printTable(log.fatalLevel(), {{rLoginRequest, "rLoginRequest"}})
+	log.printTable(log.allLevel(), {{rLoginRequest, "rLoginRequest"}})
 	return 0, rLoginRequest
 end
 

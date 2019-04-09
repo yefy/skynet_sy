@@ -182,17 +182,21 @@ while true do
 	--socket.usleep(1000000)
 end
 ]]
-for i = 1, 1 do
-	--sendLogin()
-	sendChat()
-	--sendMessage()
-	--[[
-	sendChat()
-	log.fatal("sleep stat")
-	socket.usleep(1000000* 10)
-	log.fatal("sleep end")
-	sendChat()
-	]]
+while true do
+	for i = 1, 100 do
+		sendLogin()
+		sendChat()
+		sendMessage()
+		--[[
+        sendChat()
+        log.fatal("sleep stat")
+        socket.usleep(1000000* 10)
+        log.fatal("sleep end")
+        sendChat()
+        ]]
+	end
+	socket.usleep(1000000)
+	dispatch_package()
 end
 socket.usleep(1000000)
 socket.usleep(1000000)

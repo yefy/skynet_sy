@@ -17,7 +17,7 @@ end)
 ]]
 
 skynet.start(function()
-	log.fatal("switch start")
+	log.fatal("switch_listen start")
 	skynet.newservice("debug_console", 8000)
 	skynet.newservice("switch_listen")
 end)

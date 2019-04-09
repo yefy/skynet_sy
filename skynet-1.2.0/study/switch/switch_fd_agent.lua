@@ -4,8 +4,10 @@ require "common/proto_create"
 local protobuf = require "pblib/protobuf"
 local log = require "common/log"
 require("common/stringEx")
+local dispatch = require "common/dispatch"
+local client = dispatch.client
+local server = dispatch.server
 
-local CMD = {}
 local client_fd = -1
 local serverAgent
 local uid
@@ -14,7 +16,12 @@ local function send_package(package)
 	socket.write(client_fd, package)
 end
 
-function CMD.client(fd, pack, packSize)
+function  client.open(source, fd)
+	client_fd = fd
+	return 0
+end
+
+function  client.data(source, fd, pack, packSize)
 	assert(fd == client_fd)
 	pack = skynet.tostring(pack, packSize)
 	local headMsg, headSize, _ = string.unpack_package(pack)
@@ -35,8 +42,7 @@ function CMD.client(fd, pack, packSize)
 	end
 
 	log.trace("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), serverAgent, uid, head.server, head.command)
-	pack, packSize = skynet.call(serverAgent, "client", pack)
-	local error, pack = skynet.unpack(pack, packSize)
+	local error, pack = skynet.call(serverAgent, "client", pack)
 	print("error, pack", error, pack)
 	if error ~= 0 then
 		head.error = error
@@ -44,41 +50,11 @@ function CMD.client(fd, pack, packSize)
 		pack = string.pack_package(headPack)
 	end
 	send_package(pack)
+	return 0
 end
 
-function CMD.server(conf)
-
+function  client.close(source, fd)
+	return 0
 end
 
-function CMD.start(conf)
-	local fd = conf.client
-	local gate = conf.gate
-	local watchdog = conf.watchdog
-	client_fd = fd
-	skynet.call(gate, "lua", "forward", client_fd)
-end
-
-function CMD.disconnect()
-	log.fatal("disconnect : client_fd", client_fd)
-	skynet.exit()
-end
-
-
-skynet.register_protocol {
-	name = "client",
-	id = skynet.PTYPE_CLIENT,
-	pack = skynet.pack,
-	unpack = function (...)
-		return ...
-	end,
-	dispatch = function (fd, _, msg, sz)
-		CMD.client(fd, msg, sz)
-	end
-}
-
-skynet.start(function()
-	skynet.dispatch("lua", function(_,_, command, ...)
-		local f = CMD[command]
-		skynet.ret(skynet.pack(f(...)))
-	end)
-end)
+dispatch.start()

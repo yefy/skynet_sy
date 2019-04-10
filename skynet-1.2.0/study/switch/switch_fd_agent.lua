@@ -45,10 +45,11 @@ function  server.data(source, pack, packSize)
 
 	log.trace("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), serverAgent, uid, head.server, head.command)
 	local error, pack = skynet.call(serverAgent, "client", pack)
-	print("error, pack", error, pack)
+	log.fatal("error, pack", error, pack)
 	if error ~= 0 then
 		head.error = error
-		local headPack = string.pack_package(head)
+		local headMsg = protobuf.encode("base.Head",head)
+		local headPack = string.pack_package(headMsg)
 		pack = string.pack_package(headPack)
 	end
 	send_package(pack)

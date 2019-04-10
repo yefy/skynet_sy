@@ -75,7 +75,6 @@ end
 local function accept(fd)
 	open(fd)
 	recv_package(fd)
-	skynet.exit()
 	--socket.abandon(id)清除 socket id 在本服务内的数据结构，但并不关闭这个 socket 。这可以用于你把 id 发送给其它服务，以转交 socket 的控制权。
 	--socket.abandon(fd)
 end

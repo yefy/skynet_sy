@@ -156,10 +156,12 @@ local function sendMessage()
 	send_package(fd, package(rHeadPackage .. rMessagePackage))
 end
 
+local currnumber = 0
 local function onRespond(msg, sz)
 	local rHeadMessage, rHeadSize, msg  = unpack_package(msg)
 	local rHeadData = protobuf.decode("base.Head", rHeadMessage, rHeadSize);
 	log.fatal("recv rHeadData.session, rHeadData.command", rHeadData.session, rHeadData.command)
+	currnumber = currnumber - 1
 	--[[
 	log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
 	if rHeadData.server == "player_server" and rHeadData.command == "login" then
@@ -198,14 +200,17 @@ if true then
 	return
 end
 ]]
-for i = 1, 100000 do
+while true do
+--for i = 1, 100000000000000 do
 	for i = 1, 1000 do
 		sendLogin()
 		sendChat()
 		sendMessage()
 	end
-	socket.usleep(1)
-	dispatch_package()
+	currnumber = 3 * 1000
+	while currnumber > 0 do
+		dispatch_package()
+	end
 end
 socket.usleep(1000000)
 socket.usleep(1000000)

@@ -1,14 +1,15 @@
-include "chat_config.path"
+include "master_config.path"
 
 -- preload = "./examples/preload.lua"	-- run preload.lua before every lua service run
 thread = 8
 logger = nil
 logpath = "."
-harbor = 6
-address = "127.0.0.1:2706"
+harbor = 1
+address = "127.0.0.1:2701"
 master = "127.0.0.1:2601"
-start = "chat_main"	-- main script
+start = "master_main"	-- main script
 bootstrap = "snlua bootstrap"	-- The service for bootstrap
+standalone = "0.0.0.0:2601"
 -- snax_interface_g = "snax_g"
 cpath = root.."cservice/?.so"
 -- daemon = "./skynet.pid"

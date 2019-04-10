@@ -8,6 +8,7 @@ local dispatch = require "common/dispatch"
 local client = dispatch.client
 local server = dispatch.server
 
+local addr
 local client_fd = -1
 local serverAgent
 local uid
@@ -16,21 +17,22 @@ local function send_package(package)
 	socket.write(client_fd, package)
 end
 
-function  client.open(source, fd)
+function  server.open(source, fd)
+	log.fatal("open source, fd", source, fd)
+	addr = source
 	client_fd = fd
 	return 0
 end
 
-function  client.data(source, fd, pack, packSize)
-	assert(fd == client_fd)
-	pack = skynet.tostring(pack, packSize)
+function  server.data(source, pack, packSize)
+	log.fatal("data fd, pack, packSize", client_fd, pack, packSize)
 	local headMsg, headSize, _ = string.unpack_package(pack)
 	local head = protobuf.decode("base.Head", headMsg)
 	if not head then
 		log.error("parse head nil")
 		return
 	end
-
+	log.fatal("head.session", head.session)
 	log.printTable(log.allLevel(), {{head, "head"}})
 	if uid and uid ~= head.sourceUid then
 		log.error("uid, rHeadData.sourceUid",uid ~= head.sourceUid)
@@ -53,8 +55,10 @@ function  client.data(source, fd, pack, packSize)
 	return 0
 end
 
-function  client.close(source, fd)
+function  server.close(source)
+	log.fatal("close fd", client_fd)
 	return 0
 end
 
-dispatch.start()
+dispatch.start(nil, function ()
+end)

@@ -92,6 +92,7 @@ end
 
 local function sendLogin()
 	session = session + 1
+	log.fatal("sendLogin session", session)
 	local rHead = {
 		ver = 1,
 		session = session,
@@ -113,6 +114,7 @@ end
 
 local function sendChat()
 	session = session + 1
+	log.fatal("sendChat session", session)
 	local rHead = {
 		ver = 1,
 		session = session,
@@ -134,6 +136,7 @@ end
 
 local function sendMessage()
 	session = session + 1
+	log.fatal("sendMessage session", session)
 	local rHead = {
 		ver = 1,
 		session = session,
@@ -156,12 +159,15 @@ end
 local function onRespond(msg, sz)
 	local rHeadMessage, rHeadSize, msg  = unpack_package(msg)
 	local rHeadData = protobuf.decode("base.Head", rHeadMessage, rHeadSize);
+	log.fatal("recv rHeadData.session, rHeadData.command", rHeadData.session, rHeadData.command)
+	--[[
 	log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
 	if rHeadData.server == "player_server" and rHeadData.command == "login" then
 		local rHeadMessage, rHeadSize, msg  = unpack_package(msg)
 		local rHeadData = protobuf.decode("base.Login", rHeadMessage, rHeadSize);
 		log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
 	end
+	]]
 end
 
 local function dispatch_package()
@@ -182,22 +188,28 @@ while true do
 	--socket.usleep(1000000)
 end
 ]]
-while true do
-	for i = 1, 100 do
+--[[
+socket.send(fd, "client\n")
+--socket.usleep(1000000)
+local r = socket.recv(fd)
+print("r = ", r)
+socket.close(fd)
+if true then
+	return
+end
+]]
+for i = 1, 100000 do
+	for i = 1, 1000 do
 		sendLogin()
 		sendChat()
 		sendMessage()
-		--[[
-        sendChat()
-        log.fatal("sleep stat")
-        socket.usleep(1000000* 10)
-        log.fatal("sleep end")
-        sendChat()
-        ]]
 	end
-	socket.usleep(1000000)
+	socket.usleep(1)
 	dispatch_package()
 end
 socket.usleep(1000000)
 socket.usleep(1000000)
 dispatch_package()
+socket.usleep(1000000)
+dispatch_package()
+socket.close(fd)

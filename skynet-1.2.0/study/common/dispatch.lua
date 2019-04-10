@@ -46,6 +46,7 @@ end
 
 
 local function callClient(source, head, pack)
+	log.fatal("head.session", head.session)
 	local serverConfig = serverConfig[head.server]
 	if not serverConfig then
 		log.error("not serverConfig")
@@ -60,7 +61,7 @@ local function callClient(source, head, pack)
 	local requestMsg, requestSize
 	requestMsg, requestSize, pack = string.unpack_package(pack)
 	local request = protobuf.decode(cmdConfig.request, requestMsg)
-	log.printTable(log.fatalLevel(), {{request, "request"}})
+	log.printTable(log.allLevel(), {{request, "request"}})
 	local ret, respond = callFunc("client", source, head.command, request)
 	local respondPack
 	if respond then
@@ -78,7 +79,7 @@ end
 
 
 function  dispatch.toClient(session, source, command, pack)
-	log.fatal("source, pack", source, pack)
+	log.trace("source, pack", source, pack)
 	local headMsg, headSize
 	headMsg, headSize, pack = string.unpack_package(pack)
 	local head = protobuf.decode("base.Head", headMsg)
@@ -88,7 +89,7 @@ function  dispatch.toClient(session, source, command, pack)
 		return
 	end
 	head.error = systemError.success
-	log.printTable(log.fatalLevel(), {{head, "head"}})
+	log.printTable(log.allLevel(), {{head, "head"}})
 	local ok, ret, respondPack = xpcall(callClient, function() print(debug.traceback()) end, source, head, pack)
 	if not ok then
 		head.error = systemError.invalid

@@ -5,8 +5,17 @@ local socket = require "skynet.socket"
 local client = dispatch.client
 local server = dispatch.server
 local agentMap = {}
+local _statsNumber = 0
 
 --https://blog.csdn.net/selfi_xiaowen/article/details/70596565
+local function stats()
+	skynet.sleep(100)
+	local statsNumber = _statsNumber
+	_statsNumber = 0
+	print("statsNumber = ", statsNumber)
+	skynet.fork(stats)
+end
+
 local function open(fd)
 	log.fatal("open fd", fd)
 	local agent = skynet.newservice("switch_fd_agent")
@@ -19,6 +28,7 @@ local function open(fd)
 end
 
 local function data(fd, pack, packSize)
+	_statsNumber = _statsNumber + 1
 	log.fatal("data fd, pack, packSize", fd, pack, packSize)
 	local agent = agentMap[fd].agent
 	skynet.call(agent,"lua", "data", pack, packSize)
@@ -98,4 +108,5 @@ dispatch.start(nil, function ()
 		log.fatal("connect from addr, fd", addr, fd)
 		skynet.fork(accept, fd)
 	end)
+	skynet.fork(stats)
 end)

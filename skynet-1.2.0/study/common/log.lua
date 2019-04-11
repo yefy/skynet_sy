@@ -39,7 +39,8 @@ function command.setModel(model)
     LogModelValue = model
 end
 
-local LogLeveValue = LogLevel.error
+--local LogLeveValue = LogLevel.error
+local LogLeveValue = LogLevel.none
 local OfficeNo = ""
 local StackLevel = 0
 local DefaultStackLevel = 3

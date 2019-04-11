@@ -18,7 +18,7 @@ invalid_type(int type) {
 
 void 
 skynet_harbor_send(struct remote_message *rmsg, uint32_t source, int session) {
-	printf(" ---yefy ******************** source = %u, session = %d, rmsg->type = %d \n", source, session, rmsg->type);
+	//printf(" ---yefy ******************** source = %u, session = %d, rmsg->type = %d \n", source, session, rmsg->type);
 	assert(invalid_type(rmsg->type) && REMOTE);
 	skynet_context_send(REMOTE, rmsg, sizeof(*rmsg) , source, PTYPE_SYSTEM , session);
 }

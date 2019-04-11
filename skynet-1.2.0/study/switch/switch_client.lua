@@ -12,6 +12,8 @@ local log = require("common/log")
 
 local last = ""
 local session = 0
+local _sourceUid = 1
+local _destUid = 2
 
 local fd = assert(socket.connect("127.0.0.1", 8888))
 
@@ -98,8 +100,8 @@ local function sendLogin()
 		session = session,
 		server = "player_server",
 		command = "login",
-		sourceUid = 1,
-		destUid = 1,
+		sourceUid = _sourceUid,
+		destUid = _sourceUid,
 		error = 0,
 	}
 	local rLogin = {
@@ -120,8 +122,8 @@ local function sendChat()
 		session = session,
 		server = "chat_server",
 		command = "chat",
-		sourceUid = 1,
-		destUid = 2,
+		sourceUid = _sourceUid,
+		destUid = _destUid,
 		error = 0,
 	}
 	local rChat = {
@@ -142,8 +144,8 @@ local function sendMessage()
 		session = session,
 		server = "message_server",
 		command = "message",
-		sourceUid = 1,
-		destUid = 2,
+		sourceUid = _sourceUid,
+		destUid = _destUid,
 		error = 0,
 	}
 	local rMessage = {
@@ -200,6 +202,8 @@ if true then
 	return
 end
 ]]
+local _sourceUid = 5
+local _destUid = 6
 while true do
 --for i = 1, 100000000000000 do
 	for i = 1, 1000 do

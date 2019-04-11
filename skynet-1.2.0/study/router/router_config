@@ -4,8 +4,8 @@ include "router_config.path"
 thread = 8
 logger = nil
 logpath = "."
-harbor = 4
-address = "127.0.0.1:2704"
+harbor = 47
+address = "127.0.0.1:27047"
 master = "127.0.0.1:2601"
 start = "router_main"	-- main script
 bootstrap = "snlua bootstrap"	-- The service for bootstrap

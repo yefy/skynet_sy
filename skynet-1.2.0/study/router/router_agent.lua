@@ -1,21 +1,23 @@
 local skynet = require "skynet"
-require "skynet.manager"	-- import skynet.register
-require "common/proto_create"
-local protobuf = require "pblib/protobuf"
 local log = require "common/log"
+local dispatch = require "common/dispatch"
+local client = dispatch.client
+local server = dispatch.server
 
-local CMD = {}
-
-function  CMD.chat(data)
-	local rChatRequest = data.request
-	log.printTable(log.fatalLevel(), {{rChatRequest, "rChatRequest"}})
-	return 0, rChatRequest
+local function resume(handle, session)
+	skynet.resume(handle, session)
 end
 
-skynet.start(function()
-	skynet.dispatch("lua", function(_,_, commond, data)
-		log.printTable(log.fatalLevel(), {{data, "data"}})
-		local f = CMD[commond]
-		skynet.ret(skynet.pack(f(data)))
-	end)
+function  server.router(source, data)
+	log.fatal("router data", data)
+	--[[
+	local session = skynet.genid()
+	log.fatal("skynet.self(), session", skynet.self(), session)
+	skynet.fork(resume, skynet.self(), session)
+	skynet.suspend(session)
+	]]
+	return 0
+end
+
+dispatch.start(nil, function ()
 end)

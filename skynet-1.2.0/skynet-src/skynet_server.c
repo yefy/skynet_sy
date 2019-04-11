@@ -417,7 +417,7 @@ cmd_resume(struct skynet_context * context, const char * param) {
 	int handle = 0;
 	int session = 0;
 	sscanf(param,"%d %d",&handle, &session);
-	printf("************yefy handle = %d, session = %d \n",handle, session);
+	//printf("************yefy handle = %d, session = %d \n",handle, session);
 
 	struct skynet_message message;
 	message.source = 0;

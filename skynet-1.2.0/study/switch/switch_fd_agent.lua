@@ -25,6 +25,7 @@ function  server.open(source, fd)
 end
 
 function  server.data(source, pack, packSize)
+
 	log.fatal("data fd, pack, packSize", client_fd, pack, packSize)
 	local headMsg, headSize, _ = string.unpack_package(pack)
 	local head = protobuf.decode("base.Head", headMsg)

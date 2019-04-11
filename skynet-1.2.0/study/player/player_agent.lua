@@ -8,6 +8,7 @@ function  client.login(source, data)
 	local rLoginRequest = data
 	log.fatal("login")
 	log.printTable(log.allLevel(), {{rLoginRequest, "rLoginRequest"}})
+	skynet.call(source, "lua", "router_server", "router", "login")
 	return 0, rLoginRequest
 end
 

@@ -8,18 +8,8 @@ function  client.message(source, data)
 	local rMessageRequest = data
 	log.fatal("message")
 	log.printTable(log.allLevel(), {{rMessageRequest, "rMessageRequest"}})
-	--[[
-	log.trace("start chatTest")
-	local _,str = skynet.call(source, "lua", "chat_server", "chatTest")
-	log.trace("end chatTest str", str)
-	]]
+	skynet.call(source, "lua", "router_server", "router", "message")
 	return 0, rMessageRequest
-end
-
-
-function  server.messageTest(source, data)
-	log.fatal("messageTest")
-	return 0, "messageTest"
 end
 
 dispatch.start({"cmd/message_agent_cmd"})

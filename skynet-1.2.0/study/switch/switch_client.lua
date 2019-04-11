@@ -202,8 +202,20 @@ if true then
 	return
 end
 ]]
-local _sourceUid = 5
-local _destUid = 6
+local _sourceUid = 7
+local _destUid = 8
+--[[
+sendLogin()
+if true then
+	socket.usleep(1000000)
+	dispatch_package()
+	socket.usleep(1000000)
+	dispatch_package()
+	socket.close(fd)
+	return
+end
+]]
+
 while true do
 --for i = 1, 100000000000000 do
 	for i = 1, 1000 do
@@ -212,9 +224,14 @@ while true do
 		sendMessage()
 	end
 	currnumber = 3 * 1000
+	socket.usleep(10)
+	print("currnumber = ", _sourceUid, _destUid, currnumber)
+
 	while currnumber > 0 do
 		dispatch_package()
+		socket.usleep(100)
 	end
+	print("currnumber = ", _sourceUid, _destUid, currnumber)
 end
 socket.usleep(1000000)
 socket.usleep(1000000)

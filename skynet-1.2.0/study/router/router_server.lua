@@ -1,23 +1,20 @@
 local skynet = require "skynet"
-require "skynet.manager"	-- import skynet.register
 local log = require "common/log"
+local dispatch = require "common/dispatch"
+local client = dispatch.client
+local server = dispatch.server
 
 local AgentArr = {}
 
-local CMD = {}
-
-function  CMD.getAgent()
-	return AgentArr
+function  server.getAgent(source)
+	return 0, AgentArr
 end
 
-skynet.start(function()
-	skynet.dispatch("lua", function(_,_, commond)
-		skynet.ret(skynet.pack(CMD[commond]()))
-	end)
+dispatch.start(nil, function ()
 	for i = 1, 3 do
 		local agent = skynet.newservice("router_agent")
 		table.insert(AgentArr, agent)
 	end
 	skynet.register "router_server"
-	skynet.send("player_server", "lua", "clearAgent", "chat_server")
+	skynet.call("server_server", "lua", "register", "router_server")
 end)

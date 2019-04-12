@@ -10,12 +10,9 @@ require "common/proto_create"
 local protobuf = require "pblib/protobuf"
 local log = require("common/log")
 
-local last = ""
-local session = 0
-local _sourceUid = 1
-local _destUid = 2
+math.randomseed(tostring(os.time()):reverse():sub(1, 6))
 
-local fd = assert(socket.connect("127.0.0.1", 8888))
+local session = 0
 
 local function package(msg)
 	local package = string.pack(">s2", msg)
@@ -39,7 +36,7 @@ local function unpack_package(text)
 	return text:sub(3,2+s), s, text:sub(3+s)
 end
 
-local function recv_package(last)
+local function recv_package(fd,last)
 	local msg, sz
 	msg, sz, last = unpack_package(last)
 	if msg then
@@ -50,49 +47,12 @@ local function recv_package(last)
 		return nil, 0, last
 	end
 	if r == "" then
-		error "Server closed"
+		return r
 	end
 	return unpack_package(last .. r)
 end
 
-local session = 0
-
-local function send_request(name, args)
-	session = session + 1
-	local str = name
-	send_package(fd, str)
-	print("Request:", session)
-end
-
-
-local function print_request(name, args)
-	print("REQUEST", name)
-	if args then
-		for k,v in pairs(args) do
-			print(k,v)
-		end
-	end
-end
-
-local function print_response(session, args)
-	print("RESPONSE", session)
-	if args then
-		for k,v in pairs(args) do
-			print(k,v)
-		end
-	end
-end
-
-local function print_package(t, ...)
-	if t == "REQUEST" then
-		print_request(...)
-	else
-		assert(t == "RESPONSE")
-		print_response(...)
-	end
-end
-
-local function sendLogin()
+local function sendLogin(data)
 	session = session + 1
 	log.fatal("sendLogin session", session)
 	local rHead = {
@@ -100,8 +60,8 @@ local function sendLogin()
 		session = session,
 		server = "player_server",
 		command = "login",
-		sourceUid = _sourceUid,
-		destUid = _sourceUid,
+		sourceUid = data.sourceUid,
+		destUid = data.sourceUid,
 		error = 0,
 	}
 	local rLogin = {
@@ -111,10 +71,10 @@ local function sendLogin()
 	local rHeadPackage = package(rHeadMessage)
 	local rLoginMessage = protobuf.encode("base.Login",rLogin)
 	local rLoginPackage = package(rLoginMessage)
-	send_package(fd, package(rHeadPackage .. rLoginPackage))
+	send_package(data.fd, package(rHeadPackage .. rLoginPackage))
 end
 
-local function sendChat()
+local function sendChat(data)
 	session = session + 1
 	log.fatal("sendChat session", session)
 	local rHead = {
@@ -122,8 +82,8 @@ local function sendChat()
 		session = session,
 		server = "chat_server",
 		command = "chat",
-		sourceUid = _sourceUid,
-		destUid = _destUid,
+		sourceUid = data.sourceUid,
+		destUid = data.destUid,
 		error = 0,
 	}
 	local rChat = {
@@ -133,10 +93,10 @@ local function sendChat()
 	local rHeadPackage = package(rHeadMessage)
 	local rChatMessage = protobuf.encode("base.Chat",rChat)
 	local rChatPackage = package(rChatMessage)
-	send_package(fd, package(rHeadPackage .. rChatPackage))
+	send_package(data.fd, package(rHeadPackage .. rChatPackage))
 end
 
-local function sendMessage()
+local function sendMessage(data)
 	session = session + 1
 	log.fatal("sendMessage session", session)
 	local rHead = {
@@ -144,8 +104,8 @@ local function sendMessage()
 		session = session,
 		server = "message_server",
 		command = "message",
-		sourceUid = _sourceUid,
-		destUid = _destUid,
+		sourceUid = data.sourceUid,
+		destUid = data.destUid,
 		error = 0,
 	}
 	local rMessage = {
@@ -155,15 +115,14 @@ local function sendMessage()
 	local rHeadPackage = package(rHeadMessage)
 	local rMessageMessage = protobuf.encode("base.Message",rMessage)
 	local rMessagePackage = package(rMessageMessage)
-	send_package(fd, package(rHeadPackage .. rMessagePackage))
+	send_package(data.fd, package(rHeadPackage .. rMessagePackage))
 end
 
-local currnumber = 0
+
 local function onRespond(msg, sz)
 	local rHeadMessage, rHeadSize, msg  = unpack_package(msg)
 	local rHeadData = protobuf.decode("base.Head", rHeadMessage, rHeadSize);
 	log.fatal("recv rHeadData.session, rHeadData.command", rHeadData.session, rHeadData.command)
-	currnumber = currnumber - 1
 	--[[
 	log.printTable(log.fatalLevel(), {{rHeadData, "rHeadData"}})
 	if rHeadData.server == "player_server" and rHeadData.command == "login" then
@@ -173,72 +132,89 @@ local function onRespond(msg, sz)
 	end
 	]]
 end
+local minSend = 3000
+local maxSend = 5000
+local socketNumber = ...
+if not socketNumber then
+	socketNumber = 1
+end
+local fds = {}
+local map = {[1] = sendLogin, [2] = sendChat, [3] = sendMessage}
+local sumSendPackage = 0
+local sumRecvdPackage = 0
 
-local function dispatch_package()
+local function send_rand_package(_data)
+	local rand = math.random(1, #map)
+	map[rand](_data)
+end
+
+for i = 1, socketNumber do
+	local fd = assert(socket.connect("127.0.0.1", 8888))
+	local sourceUid = math.random(1, 100000000)
+	local destUid
 	while true do
-		local msg, sz
-		msg, sz, last = recv_package(last)
-		if not msg then
+		destUid = math.random(1, 100000000)
+		if destUid ~= sourceUid then
 			break
 		end
-		onRespond(msg, sz)
+	end
+	fds[fd] = {fd = fd, sourceUid = sourceUid, destUid = destUid, send = 0, sumSend = 0, last = ""}
+end
+
+while true do
+	local delFds = {}
+	local ismsgnil = false
+	for _, _data in pairs(fds) do
+		local send = _data.send
+		if send > 0 then
+			local msg, sz
+			for i = 1, 10 do
+				msg, sz, _data.last = recv_package(_data.fd, _data.last)
+				if not msg then
+					ismsgnil = true
+					break
+				end
+
+				if msg == "" then
+					table.insert(delFds, _data.fd)
+					break
+				end
+				--onRespond(msg, sz)
+				_data.send = _data.send - 1
+				sumRecvdPackage = sumRecvdPackage + 1
+			end
+		else
+			local rand = math.random(minSend, maxSend)
+			_data.send = rand
+			_data.sumSend = _data.sumSend + rand
+			sumSendPackage = sumSendPackage + rand
+			for i = 1, rand do
+				send_rand_package(_data)
+			end
+		end
+	end
+
+	for _, _fd in pairs(delFds) do
+		fds[_fd] = nil
+	end
+
+	print("sumSendPackage, sumRecvdPackage", sumSendPackage, sumRecvdPackage)
+
+	local isnil = true
+	for _fd, _ in pairs(fds) do
+		isnil = false
+	end
+	if isnil then
+		break
+	end
+
+	if ismsgnil then
+		socket.usleep(10)
 	end
 end
---[[
-while true do
-	dispatch_package()
-	sendRequest()
-	socket.usleep(10000)
-	--socket.usleep(1000000)
+
+for _fd, _ in pairs(fds) do
+	socket.close(_fd)
 end
-]]
---[[
-socket.send(fd, "client\n")
+
 --socket.usleep(1000000)
-local r = socket.recv(fd)
-print("r = ", r)
-socket.close(fd)
-if true then
-	return
-end
-]]
-local _sourceUid = 7
-local _destUid = 8
-while true do
-	sendLogin()
-	socket.usleep(1000)
-end
-
-if true then
-	socket.usleep(1000000)
-	dispatch_package()
-	socket.usleep(1000000)
-	dispatch_package()
-	socket.close(fd)
-	return
-end
-
-
-while true do
---for i = 1, 100000000000000 do
-	for i = 1, 1000 do
-		sendLogin()
-		sendChat()
-		sendMessage()
-	end
-	currnumber = 3 * 1000
-	socket.usleep(10)
-	print("currnumber = ", _sourceUid, _destUid, currnumber)
-
-	while currnumber > 0 do
-		dispatch_package()
-		socket.usleep(100)
-	end
-	print("currnumber = ", _sourceUid, _destUid, currnumber)
-end
-socket.usleep(1000000)
-socket.usleep(1000000)
-dispatch_package()
-socket.usleep(1000000)
-dispatch_package()
-socket.close(fd)

@@ -41,7 +41,6 @@ end
 -- read skynet_socket.h for these macro
 -- SKYNET_SOCKET_TYPE_DATA = 1
 socket_message[1] = function(id, size, data)
-	print("******id, size, data", id, size, data)
 	local s = socket_pool[id]
 	if s == nil then
 		skynet.error("socket: drop package from " .. id)
@@ -50,7 +49,6 @@ socket_message[1] = function(id, size, data)
 	end
 
 	local sz = driver.push(s.buffer, buffer_pool, data, size)
-	print("****************id, size, data, sz", id, size, data, sz)
 	local rr = s.read_required
 	local rrt = type(rr)
 	if rrt == "number" then
@@ -99,7 +97,6 @@ end
 
 -- SKYNET_SOCKET_TYPE_ACCEPT = 4
 socket_message[4] = function(id, newid, addr)
-	print("id, newid, addr", id, newid, addr)
 	local s = socket_pool[id]
 	if s == nil then
 		driver.close(newid)

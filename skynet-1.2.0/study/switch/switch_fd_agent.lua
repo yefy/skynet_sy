@@ -6,8 +6,8 @@ local log = require "common/log"
 require("common/stringEx")
 local queue = require "skynet.queue"
 local dispatch = require "common/dispatch"
-local client = dispatch.client
-local server = dispatch.server
+local client = {}
+local server = {}
 
 local cs
 local addr
@@ -126,9 +126,8 @@ local function warning(fd, size)
 	end
 end
 
-local function open(source, fd)
+local function open(fd)
 	log.fatal("open fd", fd)
-	addr = source
 	client_fd = fd
 	socket.start(fd)
 	socket.warning(fd, warning)
@@ -137,12 +136,11 @@ local function open(source, fd)
 	end
 end
 
-function  server.connect(source, fd)
-	log.fatal("server.connect")
+function  dispatch.connect(fd)
 	if commonConfig.switchAgentStats then
 		skynet.fork(stats)
 	end
-	open(source, fd)
+	open(fd)
 	return 0
 end
 
@@ -204,5 +202,5 @@ function  server.exit(source)
 	return 0
 end
 
-dispatch.start(nil, function ()
+dispatch.start(function ()
 end)

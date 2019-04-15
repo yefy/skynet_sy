@@ -149,27 +149,7 @@ function server.exit(source, fd)
 	return 0
 end
 
-
-local xxx = {}
-xxx.a = 3
-function xxx:bbb()
-	log.fatal("bbb")
-end
-
-function xxx:aaa(...)
-	print(...)
-	print(self.a)
-	xxx:bbb()
-	self:bbb()
-	log.fatal("aaa")
-end
-
 dispatch.start(function ()
-	xxx["aaa"](xxx,1, 2)
-	if true then
-		return
-	end
-
 	log.fatal("socket.listen 127.0.0.1 8888")
 	local lfd = socket.listen("127.0.0.1", 8888)
 	socket.start(lfd , function(fd, addr)

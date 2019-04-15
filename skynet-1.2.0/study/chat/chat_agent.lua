@@ -1,6 +1,16 @@
 local skynet = require "skynet"
 local log = require "common/log"
 local dispatch = require "common/dispatch"
+dispatch.actionServerClass("chat_player_server")
+
+dispatch.start(function ()
+end)
+
+
+--[[
+local skynet = require "skynet"
+local log = require "common/log"
+local dispatch = require "common/dispatch"
 local client = dispatch.client
 local server = dispatch.server
 
@@ -29,3 +39,4 @@ end
 dispatch.start({"cmd/chat_agent_cmd"}, function ()
 	skynet.fork(stats)
 end)
+]]

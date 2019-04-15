@@ -7,7 +7,7 @@ local server = dispatch.server
 local uidAgent = {}
 local serverMap = {}
 
-function  server.getAgent(source, uid)
+function  server.getAgent(uid)
 	local agent = uidAgent[uid]
 	if not agent then
 		agent = skynet.newservice("server_agent")
@@ -27,7 +27,6 @@ function  server.register(source, serverName, unLock)
 	return 0
 end
 
-dispatch.actionCs()
-dispatch.start(nil, function ()
+dispatch.start(function ()
 	skynet.register "server_server"
 end)

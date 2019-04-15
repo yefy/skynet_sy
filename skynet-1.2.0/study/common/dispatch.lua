@@ -6,8 +6,7 @@ require "common/proto_create"
 local protobuf = require "pblib/protobuf"
 require "common/system_error"
 
-local dispatchClientPlayer = {}
-local dispatchServerPlayer = {}
+local dispatchPlayer = {}
 
 local dispatchConfig = {}
 local dispatchClass = {
@@ -49,64 +48,80 @@ function dispatch.actionServerCS()
 	dispatchCS.server = dispatchCS.server or queue()
 end
 
-function dispatch.client(session, source, command, uid, head, ...)
-	local player = dispatchClientPlayer[uid]
-	if not player then
-		local playerClassName = dispatchClass.client
-		if not playerClassName then
-			log.error("not dispatchClass.client", playerClassName)
-			return systemError.invalidCommand
+
+function dispatch.newClass(uid)
+	local c = dispatchPlayer[uid]
+	if not c then
+		c = {}
+		if dispatchClass.client then
+			local player = require(dispatchClass.client).new()
+			player:setUid(uid)
+			c.client = player
 		end
-		player = require(playerClassName).new()
-		player:setUid(uid)
-		player:addSession(session, source, head)
-		dispatchClientPlayer[uid] = player
+
+		if dispatchClass.server then
+			local player = require(dispatchClass.server).new()
+			player:setUid(uid)
+			c.server = player
+		end
+		if c.client and c.server then
+			c.client:setServer(c.server)
+			c.server:setClient(c.client)
+		end
+		dispatchPlayer[uid] = c
 	end
-	return player[command](player, uid, session, ...)
+	return c
+end
+
+function dispatch.client(session, source, command, head, ...)
+	local uid = head.sourceUid
+	local c = dispatch.newClass(uid)
+	local player = c.client
+	if not player then
+		log.error("not dispatchClass.client", dispatchClass.client)
+		return systemError.invalidCommand
+	end
+	player:addSession(session, source, head)
+	local error, data = player[command](player, session, ...)
+	player:clearSession(session)
+	return error, data
 end
 
 function dispatch.server(session, source, command, uid, ...)
-	local player = dispatchServerPlayer[uid]
+	local c = dispatch.newClass(uid)
+	local player = c.server
 	if not player then
-		local playerClassName = dispatchClass.server
-		if not playerClassName then
-			log.error("not dispatchClass.client", playerClassName)
-			return systemError.invalidCommand
-		end
-		player = require(playerClassName).new()
-		player:setUid(uid)
-		dispatchServerPlayer[uid] = player
+		return dispatch[command](uid, ...)
+	else
+		return player[command](player, ...)
 	end
-	return player[command](player, uid, ...)
 end
 
-local dispatchFunc = {
-	client = dispatch.client,
-	server = dispatch.server,
-}
-
-
-
-local function xpcall_ret(typeName, session, source, command, uid, ok, error, ...)
+local function xpcall_ret(typeName, session, source, command, ok, error, ...)
 	if not ok then
-		log.error("xpcall_ret : typeName, session, source, command, uid", typeName, session, source, command, uid)
+		log.error("xpcall_ret : typeName, session, source, command", typeName, session, source, command)
 		error = systemError.invalid
 	end
 
 	if not error then
-		log.error("xpcall_ret error nil : typeName, session, source, command, uid", typeName, session, source, command, uid)
+		log.error("xpcall_ret error nil : typeName, session, source, command", typeName, session, source, command)
 		error = systemError.invalidRet
 	end
 	return error, ...
 end
 
-local function callFunc(typeName, session, source, command, uid, ...)
-	local func =  dispatchFunc[typeName]
+local function callFunc(typeName, session, source, command, ...)
+	local func
+	if typeName == "client" then
+		func = dispatch.client
+	elseif typeName == "server" then
+		func = dispatch.server
+	end
 	local cs = dispatchCS[typeName]
 	if not cs then
-		return xpcall_ret(typeName, session, source, command, uid, xpcall(func, function() print(debug.traceback()) end, session, source, command, uid, ...))
+		return xpcall_ret(typeName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, ...))
 	else
-		return cs(func, session, source, command, uid, ...)
+		return cs(func, session, source, command, ...)
 	end
 end
 
@@ -127,7 +142,7 @@ local function callClient(session, source, head, pack)
 	requestMsg, requestSize, pack = string.unpack_package(pack)
 	local request = protobuf.decode(cmdConfig.request, requestMsg)
 	log.printTable(log.allLevel(), {{request, "request"}})
-	local ret, respond = callFunc("client", session, source, head.command, head.sourceUid, head, request)
+	local ret, respond = callFunc("client", session, source, head.command, head, request)
 	local respondPack
 	if respond then
 		local respondMsg = protobuf.encode(cmdConfig.respond, respond)
@@ -165,9 +180,9 @@ function  dispatch.toClient(session, source, command, pack)
 	skynet.ret(skynet.pack(systemError.success, string.pack_package(dataMsg)))
 end
 
-function  dispatch.toServer(session, source, command, uid, ...)
-	log.all("session, source, command, uid, ...", session, source, command, uid, log.getArgvData(...))
-	skynet.ret(skynet.pack(callFunc("server", session, source, command, uid, ...)))
+function  dispatch.toServer(session, source, command, ...)
+	log.all("session, source, command, ...", session, source, command, log.getArgvData(...))
+	skynet.ret(skynet.pack(callFunc("server", session, source, command, ...)))
 end
 
 
@@ -181,8 +196,8 @@ function  dispatch.start(func)
 	}
 
 	skynet.start(function()
-		skynet.dispatch("lua", function(session, source, command, uid, ...)
-			dispatch.toServer(session, source, command, uid, ...)
+		skynet.dispatch("lua", function(session, source, command, ...)
+			dispatch.toServer(session, source, command, ...)
 		end)
 		if func then
 			func()

@@ -3,18 +3,25 @@ local skynet = require "skynet"
 local log = require "common/log"
 local server = class("dispatch_server")
 
-local _uid
-local _session = {}
-
 function server:ctor(...)
+    self.uid = nil
+    self.client = nil
 end
 
 function server:setUid(uid)
-    _uid = uid
+    self.uid = uid
 end
 
-function server:addSession(session, head)
-    _session[session] = {head = head}
+function server:getUid()
+    return self.uid
+end
+
+function server:setClient(client)
+    self.client = client
+end
+
+function server:getClient()
+    return self.client
 end
 
 return server

@@ -9,10 +9,7 @@ require "common/system_error"
 local dispatchPlayer = {}
 
 local dispatchConfig = {}
-local dispatchClass = {
-	client = nil,
-	server = nil,
-}
+local dispatchClassName
 
 local dispatchCS = {
 	client = nil,
@@ -32,12 +29,8 @@ function dispatch.actionConfig(configArr)
 	end
 end
 
-function dispatch.actionClientClass(className)
-	dispatchClass.client = dispatchClass.client or className
-end
-
-function dispatch.actionServerClass(className)
-	dispatchClass.server = dispatchClass.server or className
+function dispatch.actionClass(className)
+	dispatchClassName = dispatchClassName or className
 end
 
 function dispatch.actionClientCS()
@@ -50,35 +43,22 @@ end
 
 
 function dispatch.newClass(uid)
-	local c = dispatchPlayer[uid]
-	if not c then
-		c = {}
-		if dispatchClass.client then
-			local player = require(dispatchClass.client).new()
+	local player = dispatchPlayer[uid]
+	if not player then
+		if dispatchClassName then
+			player = require(dispatchClassName).new()
 			player:setUid(uid)
-			c.client = player
+			dispatchPlayer[uid] = player
 		end
-
-		if dispatchClass.server then
-			local player = require(dispatchClass.server).new()
-			player:setUid(uid)
-			c.server = player
-		end
-		if c.client and c.server then
-			c.client:setServer(c.server)
-			c.server:setClient(c.client)
-		end
-		dispatchPlayer[uid] = c
 	end
-	return c
+	return player
 end
 
 function dispatch.client(session, source, command, head, ...)
 	local uid = head.sourceUid
-	local c = dispatch.newClass(uid)
-	local player = c.client
+	local player = dispatch.newClass(uid)
 	if not player then
-		log.error("not dispatchClass.client", dispatchClass.client)
+		log.error("not player uid", uid)
 		return systemError.invalidCommand
 	end
 	player:addSession(session, source, head)
@@ -88,8 +68,7 @@ function dispatch.client(session, source, command, head, ...)
 end
 
 function dispatch.server(session, source, command, uid, ...)
-	local c = dispatch.newClass(uid)
-	local player = c.server
+	local player = dispatch.newClass(uid)
 	if not player then
 		return dispatch[command](uid, ...)
 	else

@@ -178,11 +178,11 @@ function  server.data(source, pack, packSize)
 	local error = -1
 	if commonConfig.switchAgentBenchmark == "switch_agent_package" then
 		if not serverAgent then
-		_, serverAgent = skynet.call("server_server", "lua", "getAgent", uid)
+			_, serverAgent = skynet.call("server_server", "lua", "getAgent", uid)
 		end
 
 		log.trace("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), serverAgent, uid, head.server, head.command)
-		error, pack = skynet.call(serverAgent, "lua", "callServer", uid, pack)
+		error, pack = skynet.call(serverAgent, "client", pack)
 	end
 	log.trace("error, pack", error, pack)
 	if error ~= 0 then

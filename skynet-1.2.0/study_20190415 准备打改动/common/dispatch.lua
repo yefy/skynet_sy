@@ -7,12 +7,15 @@ local protobuf = require "pblib/protobuf"
 require "common/system_error"
 
 local dispatchPlayer = {}
+
 local dispatchConfig = {}
 local dispatchClassName
+
 local dispatchCS = {
 	client = nil,
 	server = nil,
 }
+
 local dispatch = {}
 
 function dispatch.actionConfig(configArr)
@@ -65,16 +68,12 @@ function dispatch.client(session, source, command, head, ...)
 end
 
 function dispatch.server(session, source, command, uid, ...)
-	if not dispatchClassName then
-		return dispatch[command](uid, ...)
-	end
-
-	if uid == 0 then
-		return dispatch[command]( ...)
-	end
-
 	local player = dispatch.newClass(uid)
-	return player[command](player, ...)
+	if not player then
+		return dispatch[command](uid, ...)
+	else
+		return player[command](player, ...)
+	end
 end
 
 local function xpcall_ret(typeName, session, source, command, ok, error, ...)

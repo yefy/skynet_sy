@@ -1,32 +1,39 @@
 local skynet = require "skynet"
 local log = require "common/log"
 local dispatch = require "common/dispatch"
-local client = dispatch.client
-local server = dispatch.server
 
-local uidAgent = {}
-local serverMap = {}
+--dispatch.actionServerCS()
 
-function  server.getAgent(uid)
-	local agent = uidAgent[uid]
-	if not agent then
-		agent = skynet.newservice("server_agent")
-		skynet.call(agent, "lua", "server_server", "registerMap", serverMap)
-		uidAgent[uid] = agent
-	end
-	log.trace("agent", agent)
-	return 0, agent
-end
+local _AgentArr = {}
+local _UidAgentMap = {}
+local _ServerNameMap = {}
 
-function  server.register(source, serverName, unLock)
-	log.fatal("register source, serverName, unLock", source, serverName, unLock)
-	serverMap[serverName] = unLock and "" or "lock"
-	for _, agent in pairs(uidAgent) do
-		skynet.call(agent, "lua", "server_server", "register", serverName, serverMap[serverName])
+function  dispatch.register(serverName)
+	log.fatal("register serverName", serverName)
+	_ServerNameMap[serverName] = true
+	for _uid, _agent in pairs(_UidAgentMap) do
+		skynet.call(_agent, "lua", "register", _uid, serverName)
 	end
 	return 0
 end
 
+
+function  dispatch.getAgent(uid)
+	local agent = _UidAgentMap[uid]
+	if not agent then
+		local index = uid % #_AgentArr
+		agent = _AgentArr[index]
+		skynet.call(agent, "lua", "registerMap", uid, _ServerNameMap)
+		_UidAgentMap[uid] = agent
+	end
+
+	return 0, agent
+end
+
 dispatch.start(function ()
+	for i = 1, 3 do
+		local agent = skynet.newservice("server_agent")
+		table.insert(_AgentArr, agent)
+	end
 	skynet.register "server_server"
 end)

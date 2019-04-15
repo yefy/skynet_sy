@@ -6,7 +6,6 @@ local dispatchClass = class("dispatch_class")
 function dispatchClass:ctor(...)
     self.uid = nil
     self.session = {}
-    self.serverName = {}
 end
 
 function dispatchClass:setUid(uid)
@@ -26,7 +25,5 @@ end
 function dispatchClass:clearSession(session)
     self.session[session] = nil
 end
-
-
 
 return dispatchClass

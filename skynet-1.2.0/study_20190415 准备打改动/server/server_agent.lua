@@ -124,7 +124,6 @@ end
 function  dispatch.toClient(session, source, pack)
 	log.trace("source, pack", source, pack)
 	log.trace("commonConfig.serverAgentBenchmark", commonConfig.serverAgentBenchmark)
-	statsNumber = statsNumber + 1
 	if commonConfig.serverAgentBenchmark == "server_agent_ping" then
 		skynet.ret(skynet.pack(systemError.invalid))
 		return
@@ -141,6 +140,7 @@ function  dispatch.toClient(session, source, pack)
 		log.error("parse head nil")
 		skynet.ret(skynet.pack(systemError.invalid))
 	end
+	statsNumber = statsNumber + 1
 end
 
 function  dispatch.toServer(session, source, ...)

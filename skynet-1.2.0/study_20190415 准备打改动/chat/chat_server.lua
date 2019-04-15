@@ -8,6 +8,7 @@ function  dispatch.getAgent()
 end
 
 dispatch.start(function ()
+	--[[
 	for i = 1, 3 do
 		local agent = skynet.newservice("chat_agent")
 		log.fatal("chat_server.lua agent", agent)
@@ -15,5 +16,8 @@ dispatch.start(function ()
 	end
 	skynet.register "chat_server"
 	skynet.send("server_server", "lua", "register", "chat_server")
+	]]
+	local agent = skynet.newservice("chat_agent")
+	skynet.call(agent, "lua", "aaa", 123, 987)
 end)
 

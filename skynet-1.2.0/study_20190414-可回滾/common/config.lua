@@ -19,8 +19,8 @@ local config = {
     switchStats = false,
     switchAgentBenchmark = switchAgentBenchmarkType.switch_agent_package,
     switchAgentStats = true,
-    switchAgentFork = 5,
-    serverAgentBenchmark = serverAgentBenchmarkType.server_agent_package,
+    switchAgentFork = 1,
+    serverAgentBenchmark = serverAgentBenchmarkType.server_agent_ping,
 }
 
 return config

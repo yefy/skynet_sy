@@ -17,7 +17,7 @@ function dispatch:ctor(...)
 end
 
 
-function  dispatch:chat(session, data)
+function  dispatch:login(session, data)
     self.statsNumber = self.statsNumber + 1
     log.printTable(log.allLevel(), {{data, "data"}})
     return 0, data

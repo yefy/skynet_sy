@@ -146,12 +146,6 @@ end
 
 
 
-
-
-
-
-
-
 function  server.open(source, fd)
 	log.fatal("open source, fd", source, fd)
 	addr = source
@@ -175,14 +169,34 @@ function  server.data(source, pack, packSize)
 	end
 	uid = uid or head.sourceUid
 
+	if true then
+		local harbor = require("skynet.harbor")
+		--print("queryname = ", harbor.queryname("aaabbb"))
+		local cName = "server_server"
+		log.fatal("queryname")
+		cName = harbor.queryname(cName)
+		log.fatal("cName", cName)
+		local _, serverAgent11 = skynet.call(cName, "lua", "getAgent", uid)
+		log.fatal("serverAgent11", serverAgent11)
+
+		head.error = error
+		local headMsg = protobuf.encode("base.Head",head)
+		local headPack = string.pack_package(headMsg)
+		local pack = string.pack_package(headPack)
+		send_package(pack)
+		return 0
+	end
+
+
+
 	local error = -1
 	if commonConfig.switchAgentBenchmark == "switch_agent_package" then
 		if not serverAgent then
 		_, serverAgent = skynet.call("server_server", "lua", "getAgent", uid)
 		end
 
-		log.trace("source, desc, uid, rHeadData.server, rHeadData.command", skynet.self(), serverAgent, uid, head.server, head.command)
-		error, pack = skynet.call(serverAgent, "lua", "callServer", uid, pack)
+		log.trace("source, desc, uid, rHeadData.server, rHeadData.command, pack", skynet.self(), serverAgent, uid, head.server, head.command, pack)
+		error, pack = skynet.call(serverAgent, "lua", "callClient", uid, pack)
 	end
 	log.trace("error, pack", error, pack)
 	if error ~= 0 then

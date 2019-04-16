@@ -202,10 +202,12 @@ if true then
 	return
 end
 ]]
-local _sourceUid = 7
-local _destUid = 8
+_sourceUid = 7
+_destUid = 8
 while true do
-	sendLogin()
+	--sendLogin()
+	sendChat()
+	--sendMessage()
 	socket.usleep(1000000)
 	dispatch_package()
 end

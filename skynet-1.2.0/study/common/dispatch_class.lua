@@ -6,16 +6,13 @@ local dispatchClass = class("dispatch_class")
 function dispatchClass:ctor(...)
     self.uid = nil
     self.session = {}
-    self.serverName = {}
 end
 
 function dispatchClass:setUid(uid)
-    log.fatal("setUid uid", uid)
     self.uid = uid
 end
 
 function dispatchClass:getUid()
-    log.fatal("getUid uid", self.uid)
     return self.uid
 end
 

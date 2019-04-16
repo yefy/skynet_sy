@@ -2,8 +2,6 @@ local skynet = require "skynet"
 local log = require "common/log"
 local dispatch = require "common/dispatch"
 
---dispatch.actionServerCS()
-
 local _AgentArr = {}
 local _UidAgentMap = {}
 local _ServerNameMap = {}
@@ -26,7 +24,7 @@ function  dispatch.getAgent(uid)
 		skynet.call(agent, "lua", "registerMap", uid, _ServerNameMap)
 		_UidAgentMap[uid] = agent
 	end
-
+	log.fatal("agent", agent)
 	return 0, agent
 end
 

@@ -18,9 +18,9 @@ local config = {
     switchBenchmark = switchBenchmarkType.switch_listen_fd,
     switchStats = false,
     switchAgentBenchmark = switchAgentBenchmarkType.switch_agent_package,
-    switchAgentStats = true,
-    switchAgentFork = 1,
-    serverAgentBenchmark = serverAgentBenchmarkType.server_agent_ping,
+    switchAgentStats = false,
+    switchAgentFork = 5,
+    serverAgentBenchmark = serverAgentBenchmarkType.server_agent_package,
 }
 
 return config

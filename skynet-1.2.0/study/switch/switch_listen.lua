@@ -160,6 +160,9 @@ dispatch.start(function ()
 			local agent = skynet.newservice("switch_fd_agent")
 			socket.abandon(fd) ---清除 socket id 在本服务内的数据结构，但并不关闭这个 socket 。这可以用于你把 id 发送给其它服务，以转交 socket 的控制权。
 			skynet.call(agent,"lua", "connect", fd)
+
+			--local harbor = require("skynet.harbor")
+			--print("queryname = ", harbor.queryname("aaabbb"))
 		end
 	end)
 	if commonConfig.switchStats then

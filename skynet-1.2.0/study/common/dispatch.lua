@@ -6,9 +6,9 @@ require "common/proto_create"
 local protobuf = require "pblib/protobuf"
 require "common/system_error"
 
+local dispatchClassName
 local dispatchPlayer = {}
 local dispatchConfig = {}
-local dispatchClassName
 local dispatchCS = {
 	client = nil,
 	server = nil,

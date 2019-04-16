@@ -205,9 +205,9 @@ end
 _sourceUid = 7
 _destUid = 8
 while true do
-	--sendLogin()
+	sendLogin()
 	sendChat()
-	--sendMessage()
+	sendMessage()
 	socket.usleep(1000000)
 	dispatch_package()
 end

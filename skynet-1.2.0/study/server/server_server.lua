@@ -19,7 +19,7 @@ end
 function  dispatch.getAgent(uid)
 	local agent = _UidAgentMap[uid]
 	if not agent then
-		local index = uid % #_AgentArr
+		local index = uid % #_AgentArr + 1
 		agent = _AgentArr[index]
 		skynet.call(agent, "lua", "registerMap", uid, _ServerNameMap)
 		_UidAgentMap[uid] = agent

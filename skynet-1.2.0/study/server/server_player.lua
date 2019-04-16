@@ -3,6 +3,7 @@ local log = require "common/log"
 require "common/proto_create"
 local protobuf = require "pblib/protobuf"
 local queue = require "skynet.queue"
+local harbor = require("skynet.harbor")
 local dispatchClass = require ("common/dispatch_class")
 local dispatch = class("dispatch", dispatchClass)
 
@@ -10,8 +11,6 @@ local commonConfig = skynet.getenv "commonConfig"
 if commonConfig then
     commonConfig = require(commonConfig)
 end
-
-
 
 function dispatch:stats()
     skynet.sleep(100)
@@ -30,7 +29,7 @@ end
 function dispatch:register(serverName)
     local server = self.server[serverName]
     if not server then
-        server = {agent = nil, callNumber = 0, isNew = false, cs = queue()}
+        server = {server = nil, agent = nil, callNumber = 0, isNew = true, newCS = queue()}
         self.server[serverName] = server
     else
         server.isNew = true
@@ -52,30 +51,29 @@ function dispatch:doCallClient(serverName, command, pack)
         return systemError.invalidServer
     end
 
-    server.cs(function ()
+    server.newCS(function ()
         if server.isNew then
             local sleepNumber = 0
-            if server.callNumber > 0 then
-                skynet.sleep(100 * 3)
+            while server.callNumber > 0 do
+                skynet.sleep(5)
+                sleepNumber = sleepNumber + 5
+                if sleepNumber > 100 * 3 then
+                    break
+                end
             end
             if server.callNumber > 0 then
                 log.error("强制接入服务 serverName, uid", serverName, self:getUid())
             end
             server.isNew = false
-            server.agent = nil
             server.callNumber = 0
+            server.server = harbor.queryname(serverName)
+            _, server.agent = skynet.call(server.server, "lua", "getAgent", self:getUid())
+            if not server.agent then
+                log.error("not agent  serverName, command, uid, pack", serverName, command, self:getUid(), pack)
+            end
         end
     end)
 
-
-    if not server.agent then
-        _, server.agent = skynet.call(serverName, "lua", "getAgent", self:getUid())
-    end
-
-    if not server.agent then
-        log.error("not agent  serverName, command, uid, pack", serverName, command, self:getUid(), pack)
-        return systemError.invalidServer
-    end
     server.callNumber = server.callNumber + 1
     local error, data =  skynet.call(server.agent, "client", command, pack)
     server.callNumber = server.callNumber - 1

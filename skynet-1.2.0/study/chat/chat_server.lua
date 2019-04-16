@@ -4,7 +4,7 @@ local dispatch = require "common/dispatch"
 
 local _AgentArr = {}
 function  dispatch.getAgent(uid)
-	local index = uid % #_AgentArr
+	local index = uid % #_AgentArr + 1
 	return 0, _AgentArr[index]
 end
 

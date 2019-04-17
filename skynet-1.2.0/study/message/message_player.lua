@@ -5,7 +5,7 @@ local dispatch = class("dispatch", dispatchClass)
 
 function dispatch:stats()
     skynet.sleep(100)
-    log.fatal("id, uid, statsNumber", skynet.self(), self:getUid(), self.statsNumber)
+    log.fatal("id, uid, statsNumber", skynet.self(), self:getKey(), self.statsNumber)
     self.statsNumber = 0
     skynet.fork(self["stats"], self)
 end

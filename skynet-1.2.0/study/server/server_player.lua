@@ -14,7 +14,7 @@ end
 
 function dispatch:stats()
     skynet.sleep(100)
-    log.fatal("id, uid, statsNumber", skynet.self(), self:getUid(), self.statsNumber)
+    log.fatal("id, uid, statsNumber", skynet.self(), self:getKey(), self.statsNumber)
     self.statsNumber = 0
     skynet.fork(self["stats"], self)
 end
@@ -44,7 +44,7 @@ function dispatch:registerMap(serverNameMap)
     return 0
 end
 
-function dispatch:doCallClient(serverName, command, pack)
+function dispatch:sendClient(serverName, command, pack)
     local server = self.server[serverName]
     if not server then
         log.error("not serverName", serverName)
@@ -62,14 +62,14 @@ function dispatch:doCallClient(serverName, command, pack)
                 end
             end
             if server.callNumber > 0 then
-                log.error("强制接入服务 serverName, uid", serverName, self:getUid())
+                log.error("强制接入服务 serverName, uid", serverName, self:getKey())
             end
             server.isNew = false
             server.callNumber = 0
             server.server = harbor.queryname(serverName)
-            _, server.agent = skynet.call(server.server, "lua", "getAgent", self:getUid())
+            _, server.agent = skynet.call(server.server, "lua", "getAgent", self:getKey())
             if not server.agent then
-                log.error("not agent  serverName, command, uid, pack", serverName, command, self:getUid(), pack)
+                log.error("not agent  serverName, command, uid, pack", serverName, command, self:getKey(), pack)
             end
         end
     end)
@@ -80,21 +80,15 @@ function dispatch:doCallClient(serverName, command, pack)
     return error, data
 end
 
-function dispatch:callClient(pack)
+function dispatch:callClient(session, pack)
     self.statsNumber = self.statsNumber + 1
     if commonConfig.serverAgentBenchmark == "server_agent_ping" then
         return systemError.invalid
     end
 
-    local headMsg, headSize, _ = string.unpack_package(pack)
-    local head = protobuf.decode("base.Head", headMsg)
-    if head then
-        log.printTable(log.allLevel(), {{head, "head"}})
-        return self:doCallClient(head.server, head.command, pack)
-    else
-        log.error("parse head nil")
-        return systemError.invalid
-    end
+    local head = self:getHead(session)
+    log.printTable(log.allLevel(), {{head, "head"}})
+    return self:sendClient(head.server, head.command, pack)
 end
 
 return dispatch

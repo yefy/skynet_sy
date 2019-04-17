@@ -85,7 +85,7 @@ local function  data(pack, packSize)
 		end)
 
 		log.trace("source, desc, _Uid, rHeadData.server, rHeadData.command, pack", skynet.self(), _ServerAgent, _Uid, head.server, head.command, pack)
-		error, pack = skynet.call(_ServerAgent, "lua", "callClient", _Uid, pack)
+		error, pack = skynet.call(_ServerAgent, "client", "callClient", pack)
 	end
 	log.trace("error, pack", error, pack)
 	if error ~= 0 then

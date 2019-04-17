@@ -21,7 +21,7 @@ dispatch.start(function ()
 		local agent = skynet.newservice("switch_fd_agent")
 		socket.abandon(fd) ---清除 socket id 在本服务内的数据结构，但并不关闭这个 socket 。这可以用于你把 id 发送给其它服务，以转交 socket 的控制权。
 		skynet.call(agent,"lua", "open", fd)
-		_SumStatsNumber =  _SumStatsNumber + 1
+		_StatsNumber =  _StatsNumber + 1
 		_SumStatsNumber = _SumStatsNumber + 1
 	end)
 	skynet.fork(stats)

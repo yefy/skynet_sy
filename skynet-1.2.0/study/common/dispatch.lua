@@ -6,16 +6,19 @@ require "common/proto_create"
 local protobuf = require "pblib/protobuf"
 require "common/system_error"
 
-local dispatchClassName
+local dispatchClassName   --需要生成类
 local dispatchPlayer = {}
-local dispatchConfig = {}
-local dispatchCS = {
-	client = nil,
-	server = nil,
-}
+
+local dispatchConfig  		--需要解析body
+local dispatchClientCS
+local dispatchServerCS
+local dispatchClientCSUid = {}
+local dispatchServerCSUid = {}
+
 local dispatch = {}
 
 function dispatch.actionConfig(configArr)
+	dispatchConfig = {}
 	for _, v in pairs(configArr) do
 		local config = require(v)
 		if dispatchConfig[config.server] then
@@ -27,15 +30,15 @@ function dispatch.actionConfig(configArr)
 end
 
 function dispatch.actionClass(className)
-	dispatchClassName = dispatchClassName or className
+	dispatchClassName = className
 end
 
 function dispatch.actionClientCS()
-	dispatchCS.client = dispatchCS.client or queue()
+	dispatchClientCS = queue()
 end
 
 function dispatch.actionServerCS()
-	dispatchCS.server = dispatchCS.server or queue()
+	dispatchServerCS = queue()
 end
 
 
@@ -52,6 +55,14 @@ function dispatch.newClass(uid)
 end
 
 function dispatch.client(session, source, command, head, ...)
+	return dispatch[command](session,source, head, ...)
+end
+
+function dispatch.server(session, source, command, ...)
+	return dispatch[command](...)
+end
+
+function dispatch.clientClass(session, source, command, head, ...)
 	local uid = head.sourceUid
 	local player = dispatch.newClass(uid)
 	if not player then
@@ -64,7 +75,7 @@ function dispatch.client(session, source, command, head, ...)
 	return error, data
 end
 
-function dispatch.server(session, source, command, uid, ...)
+function dispatch.serverClass(session, source, command, uid, ...)
 	if not dispatchClassName then
 		return dispatch[command](uid, ...)
 	end
@@ -77,32 +88,40 @@ function dispatch.server(session, source, command, uid, ...)
 	return player[command](player, ...)
 end
 
-local function xpcall_ret(typeName, session, source, command, ok, error, ...)
+local function xpcall_ret(funcName, session, source, command, ok, error, ...)
 	if not ok then
-		log.error("xpcall_ret : typeName, session, source, command", typeName, session, source, command)
+		log.error("xpcall_ret : funcName, session, source, command", funcName, session, source, command)
 		error = systemError.invalid
 	end
 
 	if not error then
-		log.error("xpcall_ret error nil : typeName, session, source, command", typeName, session, source, command)
+		log.error("xpcall_ret nil error : funcName, session, source, command", funcName, session, source, command)
 		error = systemError.invalidRet
 	end
 	return error, ...
 end
 
 local function callFunc(typeName, session, source, command, ...)
-	local func
-	if typeName == "client" then
-		func = dispatch.client
-	elseif typeName == "server" then
-		func = dispatch.server
+	if not dispatchClassName then
+		local func
+		if typeName == "client" then
+			func = dispatch.client
+		elseif typeName == "server" then
+			func = dispatch.server
+		end
+
+		local cs = dispatchCS[typeName]
+
+		if not cs then
+			return xpcall_ret(typeName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, ...))
+		else
+			return cs(func, session, source, command, ...)
+		end
 	end
-	local cs = dispatchCS[typeName]
-	if not cs then
-		return xpcall_ret(typeName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, ...))
-	else
-		return cs(func, session, source, command, ...)
-	end
+
+
+
+
 end
 
 
@@ -131,19 +150,62 @@ local function callClient(session, source, head, pack)
 	return ret, respondPack
 end
 
-function  dispatch.toClient(session, source, command, pack)
-	log.all("session, source, command, pack", session, source, command, pack)
-	local headMsg, headSize
-	headMsg, headSize, pack = string.unpack_package(pack)
+
+
+
+
+
+
+
+function  dispatch.toClient(session, source, command, pack, ...)
+	log.all("session, source, command, pack, ...", session, source, command, pack, log.getArgvData(...))
+	local headMsg, headSize, packBody = string.unpack_package(pack)
 	local head = protobuf.decode("base.Head", headMsg)
 	if not head then
 		log.error("parse head nil")
-		skynet.ret(skynet.pack(systemError.invalid))
-		return
+		return systemError.invalid
 	end
 	head.error = systemError.success
 	log.printTable(log.allLevel(), {{head, "head"}})
+	xpcall_ret(funcName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, ...))
 	local ok, ret, respondPack = xpcall(callClient, function() print(debug.traceback()) end, session, source, head, pack)
+end
+
+function  dispatch.toClientBody(session, source, command, pack, ...)
+	log.all("session, source, command, pack, ...", session, source, command, pack, log.getArgvData(...))
+	local headMsg, headSize, packBody = string.unpack_package(pack)
+	local head = protobuf.decode("base.Head", headMsg)
+	if not head then
+		log.error("parse head nil")
+		return systemError.invalid
+	end
+	head.error = systemError.success
+	log.printTable(log.allLevel(), {{head, "head"}})
+
+	local serverConfig = dispatchConfig[head.server]
+	if not serverConfig then
+		log.error("not serverConfig head.server", head.server)
+		return systemError.invalidServer
+	end
+
+	local cmdConfig = serverConfig[head.command]
+	if not cmdConfig then
+		log.error("not cmdConfig head.command", head.command)
+		return systemError.invalidCommand
+	end
+
+	local requestMsg, requestSize
+	requestMsg, requestSize, _ = string.unpack_package(packBody)
+	local request = protobuf.decode(cmdConfig.request, requestMsg)
+	log.printTable(log.allLevel(), {{request, "request"}})
+	local ok, ret, respond = callFunc("client", session, source, head.command, head, request)
+	local respondPack
+	if respond then
+		local respondMsg = protobuf.encode(cmdConfig.respond, respond)
+		respondPack = string.pack_package(respondMsg)
+	end
+
+	--local ok, ret, respondPack = xpcall(callClient, function() print(debug.traceback()) end, session, source, head, pack)
 	if not ok then
 		head.error = systemError.invalid
 	else
@@ -157,14 +219,32 @@ function  dispatch.toClient(session, source, command, pack)
 	else
 		dataMsg = headPack
 	end
-	skynet.ret(skynet.pack(systemError.success, string.pack_package(dataMsg)))
+	local dataPack = string.pack_package(dataMsg)
+	return systemError.success, dataPack
 end
 
 function  dispatch.toServer(session, source, command, ...)
 	log.all("session, source, command, ...", session, source, command, log.getArgvData(...))
-	skynet.ret(skynet.pack(callFunc("server", session, source, command, ...)))
+	return callFunc("server", session, source, command, ...)
 end
 
+
+function  dispatch.toClient_xpcall(session, source, command, ...)
+	local func
+	local funcName
+	if dispatchConfig then
+		func = dispatch.toClientBody
+		funcName = "dispatch.toClientBody"
+	else
+		func = dispatch.toClient
+		funcName = "dispatch.toClient"
+	end
+	skynet.ret(skynet.pack(xpcall_ret(funcName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, ...)))
+end
+
+function  dispatch.toServer_xpcall(session, source, command, ...)
+	skynet.ret(skynet.pack(xpcall_ret("dispatch.toServer", session, source, command, xpcall(dispatch.toServer, function() print(debug.traceback()) end, session, source, command, ...)))
+end
 
 function  dispatch.start(func)
 	skynet.register_protocol {
@@ -172,12 +252,12 @@ function  dispatch.start(func)
 		id = skynet.PTYPE_CLIENT,
 		pack = skynet.pack,
 		unpack = skynet.unpack,
-		dispatch = dispatch.toClient,
+		dispatch = dispatch.toClient_xpcall,
 	}
 
 	skynet.start(function()
 		skynet.dispatch("lua", function(session, source, command, ...)
-			dispatch.toServer(session, source, command, ...)
+			dispatch.toServer_xpcall(session, source, command, ...)
 		end)
 		if func then
 			func()

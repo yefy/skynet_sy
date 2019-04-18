@@ -6,15 +6,6 @@ local dispatchClass = class("dispatch_class")
 function dispatchClass:ctor(...)
     self.key = nil
     self.session = {}
-    self.dispatch = nil
-end
-
-function dispatchClass:setDispatch(dispatch)
-    self.dispatch = dispatch
-end
-
-function dispatchClass:getDispatch()
-    return self.dispatch
 end
 
 function dispatchClass:setKey(key)

@@ -17,12 +17,6 @@ local dispatchServerCSUid = {}
 
 local dispatch = {}
 
-function dispatch.close(key)
-	dispatchPlayer[key] = nil
-	dispatchClientCSUid[key] = nil
-	dispatchServerCSUid[key] = nil
-end
-
 function dispatch.actionConfig(configArr)
 	dispatchConfig = {}
 	for _, v in pairs(configArr) do
@@ -51,7 +45,6 @@ function dispatch.newClass(key)
 	local player = dispatchPlayer[key]
 	if not player then
 		player = require(dispatchClassName).new()
-		player:setDispatch(dispatch)
 		player:setKey(key)
 		dispatchPlayer[key] = player
 

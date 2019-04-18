@@ -1,6 +1,7 @@
 local skynet = require "skynet"
 local log = require "common/log"
 local dispatch = require "common/dispatch"
-dispatch.actionClass("switch_fd_player")
+dispatch.actionConfig({"cmd/player_agent_cmd"})
+dispatch.actionClass("player_player")
 dispatch.start(function ()
 end)

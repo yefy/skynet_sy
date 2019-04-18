@@ -13,28 +13,16 @@ local function stats()
 	skynet.fork(stats)
 end
 
-
-local _AgentArr = {}
-
-local function  getAgent(fd)
-	local index = fd % #_AgentArr + 1
-	return _AgentArr[index]
-end
-
 dispatch.start(function ()
 	log.fatal("socket.listen 127.0.0.1 8888")
 	local lfd = socket.listen("127.0.0.1", 8888)
 	socket.start(lfd , function(fd, addr)
 		log.fatal("connect from addr, fd", addr, fd)
-		_StatsNumber =  _StatsNumber + 1
-		_SumStatsNumber = _SumStatsNumber + 1
-		local agent = getAgent(fd)
+		local agent = skynet.newservice("switch_fd_agent")
 		socket.abandon(fd) ---清除 socket id 在本服务内的数据结构，但并不关闭这个 socket 。这可以用于你把 id 发送给其它服务，以转交 socket 的控制权。
 		skynet.call(agent,"lua", "open", fd)
+		_StatsNumber =  _StatsNumber + 1
+		_SumStatsNumber = _SumStatsNumber + 1
 	end)
-	for i = 1, 3 do
-		local agent = skynet.newservice("switch_fd_agent")
-		table.insert(_AgentArr, agent)
-	end
 	skynet.fork(stats)
 end)

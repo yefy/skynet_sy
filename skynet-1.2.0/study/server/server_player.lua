@@ -78,13 +78,16 @@ function dispatch:sendClient(serverName, command, pack)
     server.callNumber = server.callNumber + 1
     local error, data =  skynet.call(server.agent, "client", command, pack)
     server.callNumber = server.callNumber - 1
+
+    self.statsNumber = self.statsNumber + 1
+    self.sumStatsNumber = self.sumStatsNumber + 1
     return error, data
 end
 
 function dispatch:callClient(session, pack)
-    self.statsNumber = self.statsNumber + 1
-    self.sumStatsNumber = self.sumStatsNumber + 1
     if commonConfig.serverAgentBenchmark == "server_agent_ping" then
+        self.statsNumber = self.statsNumber + 1
+        self.sumStatsNumber = self.sumStatsNumber + 1
         return systemError.invalid
     end
 

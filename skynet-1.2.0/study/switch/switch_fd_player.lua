@@ -65,8 +65,6 @@ function dispatchSocket:invalidCache(size)
 end
 
 function  dispatchSocket:data(pack, packSize)
-	self.statsNumber = self.statsNumber + 1
-	self.sumStatsNumber = self.sumStatsNumber + 1
 	log.trace("fd, pack, packSize", self.fd, pack, packSize)
 	local headMsg, headSize, _ = string.unpack_package(pack)
 	local head = protobuf.decode("base.Head", headMsg)
@@ -93,6 +91,8 @@ function  dispatchSocket:data(pack, packSize)
 		log.trace("source, desc, self.uid, rHeadData.server, rHeadData.command, pack", skynet.self(), self.agent, self.uid, head.server, head.command, pack)
 		error, pack = skynet.call(self.agent, "client", "callClient", pack)
 	end
+	self.statsNumber = self.statsNumber + 1
+	self.sumStatsNumber = self.sumStatsNumber + 1
 	log.trace("error, pack", error, pack)
 	if error ~= 0 then
 		head.error = error

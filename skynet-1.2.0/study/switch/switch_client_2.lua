@@ -197,6 +197,7 @@ while true do
 				sumRecvdPackage = sumRecvdPackage + 1
 			end
 		else
+			assert(send == 0)
 			local rand = math.random(minSend, maxSend)
 			_data.send = rand
 			_data.sumSend = _data.sumSend + rand

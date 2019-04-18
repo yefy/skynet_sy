@@ -1,6 +1,7 @@
 local skynet = require "skynet"
 local log = require "common/log"
 local dispatch = require "common/dispatch"
+local thread = skynet.getenv "thread"
 
 local _AgentArr = {}
 local _UidAgentMap = {}
@@ -29,7 +30,7 @@ function  dispatch.getAgent(uid)
 end
 
 dispatch.start(function ()
-	for i = 1, 3 do
+	for i = 1, thread * 3 * 3 do
 		local agent = skynet.newservice("server_agent")
 		table.insert(_AgentArr, agent)
 	end

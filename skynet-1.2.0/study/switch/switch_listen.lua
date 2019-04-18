@@ -2,6 +2,7 @@ local skynet = require "skynet"
 local log = require "common/log"
 local socket = require "skynet.socket"
 local dispatch = require "common/dispatch"
+local thread = skynet.getenv "thread"
 
 local _StatsNumber = 0
 local _SumStatsNumber = 0
@@ -32,9 +33,9 @@ dispatch.start(function ()
 		socket.abandon(fd) ---清除 socket id 在本服务内的数据结构，但并不关闭这个 socket 。这可以用于你把 id 发送给其它服务，以转交 socket 的控制权。
 		skynet.call(agent,"lua", "open", fd)
 	end)
-	for i = 1, 3 do
+	for i = 1, thread * 3 * 3 do
 		local agent = skynet.newservice("switch_fd_agent")
 		table.insert(_AgentArr, agent)
 	end
-	skynet.fork(stats)
+	--skynet.fork(stats)
 end)

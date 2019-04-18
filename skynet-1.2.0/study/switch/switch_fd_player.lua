@@ -29,6 +29,7 @@ function dispatchSocket:ctor(...)
 	self.statsNumber = 0
 	self.sumStatsNumber = 0
 	self.dispatch = nil
+	self.source = nil
 	self.fd = nil
 	self.agent = nil
 	self.uid = nil
@@ -93,6 +94,7 @@ function  dispatchSocket:data(pack, packSize)
 	end
 	self.statsNumber = self.statsNumber + 1
 	self.sumStatsNumber = self.sumStatsNumber + 1
+	skynet.send(self.source, "lua", "add")
 	log.trace("error, pack", error, pack)
 	if error ~= 0 then
 		head.error = error
@@ -159,8 +161,9 @@ local function warning(fd, size)
 	end
 end
 
-function  dispatchSocket:open(fd, dispatch)
+function  dispatchSocket:open(source, fd, dispatch)
 	log.fatal("open fd, dispatch", fd, dispatch)
+	self.source = source
 	self.fd = fd
 	self.dispatch = dispatch
 	socket.start(fd)
@@ -177,10 +180,10 @@ function dispatch:ctor(...)
 	self.super:ctor(...)
 end
 
-function  dispatch:open()
+function  dispatch:open(source)
 	local socket = dispatchSocket.new()
 	_DispatchSocketMap[self:getKey()] = socket
-	return socket:open(self:getKey(), self:getDispatch())
+	return socket:open(source, self:getKey(), self:getDispatch())
 end
 
 return dispatch

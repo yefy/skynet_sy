@@ -25,4 +25,11 @@ function  dispatch:login(session, data)
     return 0, data
 end
 
+
+function  dispatch:isLogin(data)
+    log.all("isLogin data", data)
+    return 0, 1, 2, 3, "123"
+end
+
+
 return dispatch

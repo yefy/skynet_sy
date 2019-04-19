@@ -19,9 +19,10 @@ end
 
 
 function  dispatch:message(session, data)
+    log.printTable(log.allLevel(), {{data, "data"}})
+    self:sendServer(session, "player_server", "isLogin", "message")
     self.statsNumber = self.statsNumber + 1
     self.sumStatsNumber = self.sumStatsNumber + 1
-    log.printTable(log.allLevel(), {{data, "data"}})
     return 0, data
 end
 

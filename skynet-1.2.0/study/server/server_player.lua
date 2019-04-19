@@ -45,13 +45,7 @@ function dispatch:registerMap(serverNameMap)
     return 0
 end
 
-function dispatch:sendClient(serverName, command, pack)
-    local server = self.server[serverName]
-    if not server then
-        log.error("not serverName", serverName)
-        return systemError.invalidServer
-    end
-
+function dispatch:checkAgent(server, serverName)
     server.newCS(function ()
         if server.isNew then
             local sleepNumber = 0
@@ -70,10 +64,19 @@ function dispatch:sendClient(serverName, command, pack)
             server.server = harbor.queryname(serverName)
             _, server.agent = skynet.call(server.server, "lua", "getAgent", self:getKey())
             if not server.agent then
-                log.error("not agent  serverName, command, uid, pack", serverName, command, self:getKey(), pack)
+                log.error("not agent  serverName, uid", serverName, self:getKey())
             end
         end
     end)
+end
+
+function dispatch:sendClient(serverName, command, pack)
+    local server = self.server[serverName]
+    if not server then
+        log.error("not serverName", serverName)
+        return systemError.invalidServer
+    end
+    self:checkAgent(server, serverName)
 
     server.callNumber = server.callNumber + 1
     local error, data =  skynet.call(server.agent, "client", command, pack)
@@ -95,5 +98,15 @@ function dispatch:callClient(session, pack)
     log.printTable(log.allLevel(), {{head, "head"}})
     return self:sendClient(head.server, head.command, pack)
 end
+
+function dispatch:callServer(serverName, ...)
+    local server = self.server[serverName]
+    self:checkAgent(server, serverName)
+    server.callNumber = server.callNumber + 1
+    local ret = {skynet.call(server.agent, "lua",  ...)}
+    server.callNumber = server.callNumber - 1
+    return table.unpack(ret)
+end
+
 
 return dispatch

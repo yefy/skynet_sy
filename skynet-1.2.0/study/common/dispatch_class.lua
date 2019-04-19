@@ -41,6 +41,18 @@ function dispatchClass:getHead(session)
     return self.session[session].head
 end
 
+function dispatchClass:callServer(session, serverName, command, ...)
+    local source = self:getSource(session)
+    local head = self:getHead(session)
+    return skynet.call(source, "lua", "callServer", head.sourceUid, serverName, command, head.sourceUid, ...)
+end
+
+function dispatchClass:sendServer(session, serverName, command, ...)
+    local source = self:getSource(session)
+    local head = self:getHead(session)
+    skynet.send(source, "lua", "callServer", head.sourceUid, serverName, command, head.sourceUid, ...)
+end
+
 
 
 return dispatchClass

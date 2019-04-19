@@ -228,11 +228,19 @@ function  dispatch.toClient_xpcall(session, source, command, ...)
 		func = dispatch.toClient
 		funcName = "dispatch.toClient"
 	end
-	skynet.ret(skynet.pack(xpcall_ret(funcName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, ...))))
+	if session > 0 then
+		skynet.ret(skynet.pack(xpcall_ret(funcName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, ...))))
+	else
+		xpcall_ret(funcName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, ...))
+	end
 end
 
 function  dispatch.toServer_xpcall(session, source, command, ...)
-	skynet.ret(skynet.pack(xpcall_ret("dispatch.toServer", session, source, command, xpcall(dispatch.toServer, function() print(debug.traceback()) end, session, source, command, ...))))
+	if session > 0 then
+		skynet.ret(skynet.pack(xpcall_ret("dispatch.toServer", session, source, command, xpcall(dispatch.toServer, function() print(debug.traceback()) end, session, source, command, ...))))
+	else
+		xpcall_ret("dispatch.toServer", session, source, command, xpcall(dispatch.toServer, function() print(debug.traceback()) end, session, source, command, ...))
+	end
 end
 
 function  dispatch.start(func)

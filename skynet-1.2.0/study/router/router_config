@@ -5,10 +5,11 @@ thread = 8
 logger = nil
 logpath = "."
 harbor = 7
-address = "127.0.0.1:2707"
+address = "127.0.0.1:2706"
 master = "127.0.0.1:2601"
 start = "router_main"	-- main script
 bootstrap = "snlua bootstrap"	-- The service for bootstrap
 -- snax_interface_g = "snax_g"
 cpath = root.."cservice/?.so"
 -- daemon = "./skynet.pid"
+

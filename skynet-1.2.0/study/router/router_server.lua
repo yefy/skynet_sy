@@ -1,20 +1,20 @@
 local skynet = require "skynet"
 local log = require "common/log"
 local dispatch = require "common/dispatch"
-local client = dispatch.client
-local server = dispatch.server
+local thread = skynet.getenv "thread"
 
-local AgentArr = {}
-
-function  server.getAgent(source)
-	return 0, AgentArr
+local _AgentArr = {}
+function  dispatch.getAgent(uid)
+	local index = uid % #_AgentArr + 1
+	return 0, _AgentArr[index]
 end
 
-dispatch.start(nil, function ()
-	for i = 1, 3 do
+dispatch.start(function ()
+	for i = 1, thread * 3 do
 		local agent = skynet.newservice("router_agent")
-		table.insert(AgentArr, agent)
+		table.insert(_AgentArr, agent)
 	end
 	skynet.register "router_server"
-	skynet.call("server_server", "lua", "register", "router_server")
+	skynet.send("server_server", "lua", "register", "router_server")
 end)
+

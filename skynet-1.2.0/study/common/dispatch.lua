@@ -18,9 +18,9 @@ local dispatchServerCSUid = {}
 local dispatch = {}
 
 function dispatch.close(key)
-	dispatchPlayer[key] = nil
-	dispatchClientCSUid[key] = nil
-	dispatchServerCSUid[key] = nil
+	--dispatchPlayer[key] = nil
+	--dispatchClientCSUid[key] = nil
+	--dispatchServerCSUid[key] = nil
 end
 
 function dispatch.actionConfig(configArr)
@@ -76,15 +76,18 @@ end
 
 function  dispatch.clientClass(session, source, command, head, pack, ...)
 	local player = dispatch.newClass(head.sourceUid)
-	player:addSession(session, source, head)
+	local token = session .. source
+	--log.fatal("addToken player, token, session, source, head, head.sourceUid", player, token, session, source, head, head.sourceUid)
+	player:addToken(token, session, source, head)
 	local error, data
 	local cs = dispatchClientCSUid[head.sourceUid]
 	if cs then
-		error, data = cs(player[command], player, session, pack, ...)
+		error, data = cs(player[command], player, token, pack, ...)
 	else
-		error, data = player[command](player, session, pack, ...)
+		error, data = player[command](player, token, pack, ...)
 	end
-	player:clearSession(session)
+	--log.fatal("clearToken player, token, session, source, head, head.sourceUid", player, token, session, source, head, head.sourceUid)
+	player:clearToken(token, session, source, head)
 	return error, data
 end
 
@@ -140,7 +143,7 @@ function  dispatch.toClient(session, source, command, pack, ...)
 		funcName = "dispatch.clientClass"
 	else
 		func = dispatch.client
-		funcName = "dispatch.clientClass"
+		funcName = "dispatch.client"
 	end
 	return xpcall_ret(funcName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, head, pack, ...))
 end
@@ -180,7 +183,7 @@ function  dispatch.toClientBody(session, source, command, pack, ...)
 		funcName = "dispatch.clientClass"
 	else
 		func = dispatch.client
-		funcName = "dispatch.clientClass"
+		funcName = "dispatch.client"
 	end
 	local respond
 	head.error, respond = xpcall_ret(funcName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, head, request, ...))
@@ -219,6 +222,7 @@ end
 
 
 function  dispatch.toClient_xpcall(session, source, command, ...)
+	--log.fatal("toClient_xpcall session, source", session, source)
 	local func
 	local funcName
 	if dispatchConfig then

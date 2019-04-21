@@ -10,7 +10,7 @@ local _playerNumber = 0
 local _SumPlayerNumber = 0
 
 local function stats()
-	skynet.sleep(100)
+	skynet.sleep(1000)
 	log.fatal("_sumStatsNumber, _statsNumber, _SumPlayerNumber, _playerNumber", _SumStatsNumber, _StatsNumber, _SumPlayerNumber, _playerNumber)
 	_StatsNumber = 0
 	_playerNumber = 0
@@ -31,7 +31,6 @@ function  dispatch.add()
 	return 0
 end
 
-
 dispatch.start(function ()
 	log.fatal("socket.listen 127.0.0.1 8888")
 	local lfd = socket.listen("127.0.0.1", 8888)
@@ -47,5 +46,5 @@ dispatch.start(function ()
 		local agent = skynet.newservice("switch_fd_agent")
 		table.insert(_AgentArr, agent)
 	end
-	skynet.fork(stats)
+	--skynet.fork(stats)
 end)

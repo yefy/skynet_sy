@@ -231,35 +231,18 @@ function skynet.sleep(ti, token)
 	end
 end
 
-function skynet.resume(handle, session)
-	local param = handle .. " " .. session
-	return c.intcommand("RESUME", param)
-end
-
-function skynet.handle()
-	local handle = c.intcommand("HANDLE")
-	print("handle = ", handle)
-	return handle
-end
-
-function skynet.session()
-	local session = c.intcommand("SESSION")
-	print("session = ", session)
-	return session
+function skynet.resume(handle, session, ...)
+	return c.resume(handle, session, skynet.pack(...))
 end
 
 function skynet.suspend(session)
 	local token = coroutine.running()
-	local succ, ret = suspend_sleep(session, token)
+	local succ, msg, sz = suspend_sleep(session, token)
 	sleep_session[token] = nil
-	if succ then
-		return
+	if not succ then
+		return -1
 	end
-	if ret == "BREAK" then
-		return ret
-	else
-		error(ret)
-	end
+	return skynet.unpack(msg, sz)
 end
 
 function skynet.yield()

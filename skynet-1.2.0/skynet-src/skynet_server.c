@@ -721,6 +721,40 @@ skynet_command(struct skynet_context * context, const char * cmd , const char * 
 	return NULL;
 }
 
+
+int 
+skynet_resume(struct skynet_context * context, uint32_t handle, uint32_t session, void *msg, size_t sz) {
+	if ((sz & MESSAGE_TYPE_MASK) != sz) {
+		skynet_error(context, "The message to handle = %x, session = %x, sz = %x  is too large", handle, session, sz);
+		skynet_free(msg);
+		return -1;
+	}
+
+	sz |= ((size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT);
+	
+	if (skynet_harbor_message_isremote(handle)) {
+		struct remote_message * rmsg = skynet_malloc(sizeof(*rmsg));
+		rmsg->destination.handle = handle;
+		rmsg->message = msg;
+		rmsg->sz = sz & MESSAGE_TYPE_MASK;
+		rmsg->type = sz >> MESSAGE_TYPE_SHIFT;
+		skynet_harbor_send(rmsg, 0, session);
+	} else {
+		struct skynet_message message;
+		message.source = 0;
+		message.session = session;
+		message.data = msg;
+		message.sz = sz;
+
+		if (skynet_context_push(handle, &message)) {
+			skynet_free(msg);
+			return -2;
+		}
+	}
+	return 0;
+}
+
+
 static void
 _filter_args(struct skynet_context * context, int type, int *session, void ** data, size_t * sz) {
 	int needcopy = !(type & PTYPE_TAG_DONTCOPY);

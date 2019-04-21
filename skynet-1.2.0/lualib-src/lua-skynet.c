@@ -230,6 +230,20 @@ get_dest_string(lua_State *L, int index) {
 }
 
 static int
+send_resume(lua_State *L) {
+	struct skynet_context * context = lua_touserdata(L, lua_upvalueindex(1));
+	uint32_t handle = (uint32_t)lua_tointeger(L, 1);
+	uint32_t session = (uint32_t)lua_tointeger(L, 2);
+	void * msg = lua_touserdata(L,3);
+	int sz = luaL_checkinteger(L,4);
+	//printf("************yefy handle = %d, session = %d, sz = %d \n",handle, session, sz);
+	int ret = skynet_resume(context, handle, session, msg, sz);
+	lua_pushinteger(L, ret);
+	return 0;
+}
+
+
+static int
 send_message(lua_State *L, int source, int idx_type) {
 	struct skynet_context * context = lua_touserdata(L, lua_upvalueindex(1));
 	uint32_t dest = (uint32_t)lua_tointeger(L, 1);
@@ -304,6 +318,15 @@ static int
 lsend(lua_State *L) {
 	return send_message(L, 0, 2);
 }
+
+static int
+lresume(lua_State *L) {
+	return send_resume(L);
+}
+
+
+
+
 
 /*
 	uint32 address
@@ -484,6 +507,7 @@ luaopen_skynet_core(lua_State *L) {
 	luaL_checkversion(L);
 
 	luaL_Reg l[] = {
+		{ "resume" , lresume },
 		{ "send" , lsend },
 		{ "genid", lgenid },
 		{ "redirect", lredirect },

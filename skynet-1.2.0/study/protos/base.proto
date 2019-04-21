@@ -16,6 +16,10 @@ message Login{
 	required string 	password 	    = 1;
 }
 
+message Router{
+	required string 	message 	    = 1;
+}
+
 message Chat{
 	required string 	message 	    = 1;
 }

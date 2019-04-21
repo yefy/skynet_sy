@@ -1,5 +1,5 @@
 
-³
+×
 
 base.protobase"²
 Head
@@ -11,7 +11,9 @@ base.protobase"²
 destUid (RdestUid
 error (Rerror"#
 Login
-password (	Rpassword" 
+password (	Rpassword""
+Router
+message (	Rmessage" 
 Chat
 message (	Rmessage"#
 Message

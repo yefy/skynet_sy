@@ -7,6 +7,7 @@ require("common/stringEx")
 local queue = require "skynet.queue"
 local dispatchClass = require ("common/dispatch_class")
 local dispatch = class("dispatch", dispatchClass)
+
 local dispatchSocket = class("dispatch_class")
 
 local _MaxPackageSize = 9 * 1024
@@ -38,8 +39,8 @@ function dispatchSocket:ctor(...)
 end
 
 function dispatchSocket:stats()
-	skynet.sleep(100)
-	log.fatal("id, fd, sumStatsNumber, statsNumber", skynet.self(), self.fd, self.sumStatsNumber, self.statsNumber)
+	skynet.sleep(1000)
+	log.fatal("id, self, fd, self.uid, sumStatsNumber, statsNumber", skynet.self(), self, self.fd, self.uid, self.sumStatsNumber, self.statsNumber)
 	self.statsNumber = 0
 	if self.fd then
 		skynet.fork(self["stats"], self)
@@ -49,7 +50,7 @@ end
 function dispatchSocket:close()
 	if self.fd then
 		log.fatal("close fd", self.fd)
-		self.dispatch.close(self.fd)
+		--self.dispatch.close(self.fd)
 		socket.close(self.fd)
 		self.fd = nil
 	end
@@ -162,7 +163,7 @@ local function warning(fd, size)
 end
 
 function  dispatchSocket:open(source, fd, dispatch)
-	log.fatal("open fd, dispatch", fd, dispatch)
+	log.fatal("open fd, dispatch", source, fd, dispatch)
 	self.source = source
 	self.fd = fd
 	self.dispatch = dispatch
@@ -177,7 +178,6 @@ end
 
 
 function dispatch:ctor(...)
-	self.super:ctor(...)
 end
 
 function  dispatch:open(source)

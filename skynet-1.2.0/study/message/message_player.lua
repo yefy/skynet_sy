@@ -4,7 +4,7 @@ local dispatchClass = require ("common/dispatch_class")
 local dispatch = class("dispatch", dispatchClass)
 
 function dispatch:stats()
-    skynet.sleep(100)
+    skynet.sleep(1000)
     log.fatal("id, uid, sumStatsNumber, statsNumber", skynet.self(), self:getKey(), self.sumStatsNumber, self.statsNumber)
     self.statsNumber = 0
     skynet.fork(self["stats"], self)
@@ -18,9 +18,9 @@ function dispatch:ctor(...)
 end
 
 
-function  dispatch:message(session, data)
+function  dispatch:message(token, data)
     log.printTable(log.allLevel(), {{data, "data"}})
-    self:sendServer(session, "player_server", "isLogin", "message")
+    self:sendServer(token, "player_server", "isLogin", "message")
     self.statsNumber = self.statsNumber + 1
     self.sumStatsNumber = self.sumStatsNumber + 1
     return 0, data

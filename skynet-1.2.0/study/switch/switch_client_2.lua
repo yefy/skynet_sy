@@ -74,6 +74,28 @@ local function sendLogin(data)
 	send_package(data.fd, package(rHeadPackage .. rLoginPackage))
 end
 
+local function sendRouter(data)
+	session = session + 1
+	log.trace("sendRouter session", session)
+	local rHead = {
+		ver = 1,
+		session = session,
+		server = "player_server",
+		command = "router",
+		sourceUid = data.sourceUid,
+		destUid = data.destUid,
+		error = 0,
+	}
+	local rMessage = {
+		message = "router_hello"
+	}
+	local rHeadMessage = protobuf.encode("base.Head",rHead)
+	local rHeadPackage = package(rHeadMessage)
+	local rMessageMessage = protobuf.encode("base.Router",rMessage)
+	local rMessagePackage = package(rMessageMessage)
+	send_package(data.fd, package(rHeadPackage .. rMessagePackage))
+end
+
 local function sendChat(data)
 	session = session + 1
 	log.trace("sendChat session", session)
@@ -125,7 +147,7 @@ if not socketNumber then
 	socketNumber = 1
 end
 local fds = {}
-local map = {[1] = sendLogin, [2] = sendChat, [3] = sendMessage}
+local map = {[1] = sendLogin, [2] = sendRouter, [3] = sendChat, [4] = sendMessage, }
 local sumSendPackage = 0
 local sumRecvdPackage = 0
 
@@ -170,6 +192,7 @@ for i = 1, socketNumber do
 				   message = -1,
 				   chat = -1,
 				   login = -1,
+				   router = -1,
 			   }
 	}
 end

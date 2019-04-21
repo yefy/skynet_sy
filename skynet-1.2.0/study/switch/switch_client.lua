@@ -158,6 +158,28 @@ local function sendMessage()
 	send_package(fd, package(rHeadPackage .. rMessagePackage))
 end
 
+local function sendRouter()
+	session = session + 1
+	log.trace("sendRouter session", session)
+	local rHead = {
+		ver = 1,
+		session = session,
+		server = "player_server",
+		command = "router",
+		sourceUid = _sourceUid,
+		destUid = _destUid,
+		error = 0,
+	}
+	local rMessage = {
+		message = "router_hello"
+	}
+	local rHeadMessage = protobuf.encode("base.Head",rHead)
+	local rHeadPackage = package(rHeadMessage)
+	local rMessageMessage = protobuf.encode("base.Router",rMessage)
+	local rMessagePackage = package(rMessageMessage)
+	send_package(fd, package(rHeadPackage .. rMessagePackage))
+end
+
 local currnumber = 0
 local function onRespond(msg, sz)
 	local rHeadMessage, rHeadSize, msg  = unpack_package(msg)
@@ -205,11 +227,13 @@ end
 _sourceUid = 7
 _destUid = 8
 while true do
-	sendLogin()
-	sendChat()
-	sendMessage()
+	--sendLogin()
+	--sendChat()
+	--sendMessage()
+	sendRouter()
 	socket.usleep(1000000)
 	dispatch_package()
+	return
 end
 
 if true then

@@ -13,9 +13,10 @@ if commonConfig then
 end
 
 function dispatch:stats()
-    skynet.sleep(100)
-    log.fatal("id, uid, sumStatsNumber, statsNumber", skynet.self(), self:getKey(), self.sumStatsNumber, self.statsNumber)
+    skynet.sleep(1000)
+    log.fatal("id, uid, sumStatsNumber, statsNumber, sumStatsNumberServer, statsNumberServer", skynet.self(), self:getKey(), self.sumStatsNumber, self.statsNumber, self.sumStatsNumberServer, self.statsNumberServer)
     self.statsNumber = 0
+    self.statsNumberServer = 0
     skynet.fork(self["stats"], self)
 end
 
@@ -23,6 +24,8 @@ function dispatch:ctor(...)
     self.super:ctor(...)
     self.statsNumber = 0
     self.sumStatsNumber = 0
+    self.statsNumberServer = 0
+    self.sumStatsNumberServer = 0
     skynet.fork(self["stats"], self)
     self.server = {}
 end
@@ -79,6 +82,7 @@ function dispatch:sendClient(serverName, command, pack)
     self:checkAgent(server, serverName)
 
     server.callNumber = server.callNumber + 1
+    --log.fatal("server.agent, command, pack", server.agent, command, pack)
     local error, data =  skynet.call(server.agent, "client", command, pack)
     server.callNumber = server.callNumber - 1
 
@@ -87,14 +91,14 @@ function dispatch:sendClient(serverName, command, pack)
     return error, data
 end
 
-function dispatch:callClient(session, pack)
+function dispatch:callClient(token, pack)
     if commonConfig.serverAgentBenchmark == "server_agent_ping" then
         self.statsNumber = self.statsNumber + 1
         self.sumStatsNumber = self.sumStatsNumber + 1
         return systemError.invalid
     end
 
-    local head = self:getHead(session)
+    local head = self:getHead(token)
     log.printTable(log.allLevel(), {{head, "head"}})
     return self:sendClient(head.server, head.command, pack)
 end
@@ -105,6 +109,8 @@ function dispatch:callServer(serverName, ...)
     server.callNumber = server.callNumber + 1
     local ret = {skynet.call(server.agent, "lua",  ...)}
     server.callNumber = server.callNumber - 1
+    self.statsNumberServer = self.statsNumberServer + 1
+    self.sumStatsNumberServer = self.sumStatsNumberServer + 1
     return table.unpack(ret)
 end
 

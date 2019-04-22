@@ -36,14 +36,14 @@ function  dispatch:router(token, data)
     self.sumStatsNumber = self.sumStatsNumber + 1
     log.printTable(log.traceLevel(), {{data, "router data"}})
     local error, routerData = self:callRouter(token, "player_server", "routerMessage", data.message)
-    log.traceLevel("error, routerData", error, routerData)
+    log.all("error, routerData", error, routerData)
     return 0, data
 end
 
 function  dispatch:routerMessage(uid, message)
     self.statsNumberRouter = self.statsNumberRouter + 1
     self.sumStatsNumberRouter = self.sumStatsNumberRouter + 1
-    log.trace("key, uid, message", self:getKey(), uid, message)
+    log.all("key, uid, message", self:getKey(), uid, message)
     return 0, "routerMessage"
 end
 

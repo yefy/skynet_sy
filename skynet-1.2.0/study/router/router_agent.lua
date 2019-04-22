@@ -26,6 +26,7 @@ local function recvRespond(pack)
         return
     end
 
+    log.trace("handle, routerSession, headMsg, bodyMsg = ", handle, routerSession, headMsg, bodyMsg)
     skynet.resume(handle, routerSession, skynet.unpack(bodyMsg, bodySz))
     _RouterMap[token] = false
     _StatsNumber =  _StatsNumber + 1
@@ -36,6 +37,7 @@ local function recvRequest(pack)
     local dataMsg, dataSz, _ = string.unpack_package(pack)
     local headMsg, headSz, bodyPack = string.unpack_package(dataMsg)
     local handle, routerSession, serverName, command, sourceUid, destUid = skynet.unpack(headMsg, headSz)
+    log.trace("handle, routerSession, serverName, command, sourceUid, destUid", handle, routerSession, serverName, command, sourceUid, destUid)
     local bodyMsg, bodySz, _ = string.unpack_package(bodyPack)
 
     local _, agent = skynet.call("server_server", "lua", "getAgent", destUid)
@@ -45,10 +47,13 @@ local function recvRequest(pack)
     if true then
         local headMsg, headSz = skynet.pack(handle, routerSession)
         local headStr = skynet.tostring(headMsg, headSz)
+        skynet.trash(headMsg, headSz)
         local headPack = string.pack_package(headStr)
         local bodyStr = skynet.tostring(retMsg, retSz)
+        skynet.trash(retMsg, retSz)
         local bodyPack = string.pack_package(bodyStr)
         local pack = string.pack_package(headPack..bodyPack)
+        log.trace("pack = ", pack)
         skynet.fork(recvRespond, pack)
     end
 end
@@ -62,6 +67,7 @@ function dispatch.router(destUid, handle, session, pack)
     end
     _RouterMap[token] = true
     log.trace("destUid, handle, session, pack", destUid, handle, session, pack)
+    log.trace("pack", pack)
     skynet.fork(recvRequest, pack)
     return 0
 end

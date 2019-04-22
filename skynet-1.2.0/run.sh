@@ -21,10 +21,10 @@ done
 cd -
 killall -9 skynet
 ./skynet study/master/master_config &
-#./skynet study/server/server_config &
-#sleep 1
-#./skynet study/player/player_config &
-#./skynet study/chat/chat_config &
-#./skynet study/message/message_config &
-#./skynet study/router/router_config &
+sleep 1
+./skynet study/server/server_config &
+./skynet study/player/player_config &
+./skynet study/chat/chat_config &
+./skynet study/message/message_config &
+./skynet study/router/router_config &
 ./skynet study/switch/switch_config &

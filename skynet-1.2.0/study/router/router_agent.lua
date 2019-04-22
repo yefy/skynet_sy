@@ -28,7 +28,7 @@ local function recvRespond(pack)
 
     log.trace("handle, routerSession, headMsg, bodyMsg = ", handle, routerSession, headMsg, bodyMsg)
     skynet.resume(handle, routerSession, skynet.unpack(bodyMsg, bodySz))
-    _RouterMap[token] = false
+    _RouterMap[token] = nil
     _StatsNumber =  _StatsNumber + 1
     _SumStatsNumber = _SumStatsNumber + 1
 end
@@ -41,7 +41,12 @@ local function recvRequest(pack)
     local bodyMsg, bodySz, _ = string.unpack_package(bodyPack)
 
     local _, agent = skynet.call("server_server", "lua", "getAgent", destUid)
-
+--[[
+    if true then
+        _RouterMap[handle..session] = nil
+        return
+    end
+]]
     local retMsg, retSz = skynet.pack(skynet.call(agent, "lua", "callServer", destUid, serverName, command, destUid, skynet.unpack(bodyMsg, bodySz)))
     ---todo
     if true then

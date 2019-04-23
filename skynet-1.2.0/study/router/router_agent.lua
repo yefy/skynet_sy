@@ -1,11 +1,16 @@
 local skynet = require "skynet"
 local log = require "common/log"
+require "common/proto_create"
+local protobuf = require "pblib/protobuf"
+local socket = require "skynet.socket"
 local dispatch = require "common/dispatch"
 
 local _RouterMap = {}
 
 local _StatsNumber = 0
 local _SumStatsNumber = 0
+local _Session = 1
+local _PackMap = {}
 
 local function stats()
     skynet.sleep(1000)
@@ -76,6 +81,45 @@ function dispatch.router(destUid, handle, session, pack)
     skynet.fork(recvRequest, pack)
     return 0
 end
+
+function dispatch.addPack(session, pack)
+    if _PackMap[session] then
+        log.error("_PackMap[session]", session)
+    end
+    _PackMap[session] = pack
+end
+
+function dispatch.delPack(session)
+    if not _PackMap[session] then
+        log.error("not _PackMap[session]", session)
+    end
+    _PackMap[session] = nil
+end
+
+function dispatch.sendPack(destUid, pack)
+    _Session = _Session + 1
+    local head = {
+        ver = 1,
+        session = _Session,
+        server = "router_service",
+        command = "request",
+        destUid = destUid,
+        error = 0,
+        token = "",
+    }
+
+    local headMsg = protobuf.encode("base.Head",head)
+    local headPack = string.pack_package(headMsg)
+
+    local dataPack = string.pack_package(headPack .. pack)
+    dispatch.addPack(_Session, dataPack)
+
+end
+
+function dispatch.recvPack(destUid, handle, session, pack)
+
+end
+
 
 dispatch.start(function ()
     skynet.fork(stats)

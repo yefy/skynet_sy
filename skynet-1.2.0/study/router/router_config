@@ -13,3 +13,6 @@ bootstrap = "snlua bootstrap"	-- The service for bootstrap
 cpath = root.."cservice/?.so"
 -- daemon = "./skynet.pid"
 
+listerAddr = "127.0.0.1:2801"
+requestAddr = "127.0.0.1:2901"
+

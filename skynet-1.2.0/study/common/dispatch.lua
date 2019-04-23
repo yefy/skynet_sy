@@ -65,6 +65,25 @@ function dispatch.newClass(key)
 	return player
 end
 
+function dispatch.parseHead(pack)
+	local headMsg, headSize, bodyPack = string.unpack_package(pack)
+	local head = protobuf.decode("base.Head", headMsg)
+	if not head then
+		log.error("parse head nil")
+		return
+	end
+	return head
+end
+
+function dispatch.parsePack(pack, dispatchConfig)
+	local headMsg, headSize, bodyPack = string.unpack_package(pack)
+	local head = protobuf.decode("base.Head", headMsg)
+	if not head then
+		log.error("parse head nil")
+		return
+	end
+	return head
+end
 
 function  dispatch.client(session, source, command, head, pack, ...)
 	if dispatchClientCS then

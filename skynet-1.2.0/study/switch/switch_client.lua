@@ -103,7 +103,10 @@ local function sendLogin()
 		sourceUid = _sourceUid,
 		destUid = _sourceUid,
 		error = 0,
+		token = "",
 	}
+
+
 	local rLogin = {
 		password = "123456"
 	}
@@ -125,6 +128,7 @@ local function sendChat()
 		sourceUid = _sourceUid,
 		destUid = _destUid,
 		error = 0,
+		token = "",
 	}
 	local rChat = {
 		message = "chat_hello"
@@ -147,6 +151,7 @@ local function sendMessage()
 		sourceUid = _sourceUid,
 		destUid = _destUid,
 		error = 0,
+		token = "",
 	}
 	local rMessage = {
 		message = "message_hello"
@@ -169,6 +174,7 @@ local function sendRouter()
 		sourceUid = _sourceUid,
 		destUid = _destUid,
 		error = 0,
+		token = "",
 	}
 	local rMessage = {
 		message = "router_hello"

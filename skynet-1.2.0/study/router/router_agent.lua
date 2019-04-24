@@ -11,7 +11,6 @@ local _RouterMap = {}
 
 local _StatsNumber = 0
 local _SumStatsNumber = 0
-local _Session = 1
 local _PackMap = {}
 
 local function stats()
@@ -86,53 +85,99 @@ end
 
 function dispatch.getSocket()
     if not _FD then
-        _FD = socket.open()
+        _FD = socket.open(requestAddr)
     end
+    return _FD
 end
 
-
-function dispatch.addPack(session, pack)
-    if _PackMap[session] then
-        log.error("_PackMap[session]", session)
-    end
-    _PackMap[session] = pack
+function dispatch.writeSocket(pack)
+    local fd = dispatch.getSocket()
+    socket.write(fd, pack)
 end
 
-function dispatch.delPack(session)
-    if not _PackMap[session] then
-        log.error("not _PackMap[session]", session)
+function dispatch.addPack(sessionStr, pack)
+    if _PackMap[sessionStr] then
+        log.error("_PackMap[session]", sessionStr)
     end
-    _PackMap[session] = nil
+    _PackMap[sessionStr] = pack
 end
 
-function dispatch.sendPack(destUid, pack)
-    _Session = _Session + 1
+function dispatch.delPack(sessionStr)
+    if not _PackMap[sessionStr] then
+        log.error("not _PackMap[session]", sessionStr)
+    end
+    _PackMap[sessionStr] = nil
+end
+
+function dispatch.sendPack(destUid, sessionStr, pack)
     local head = {
         ver = 1,
-        session = _Session,
+        session = sessionStr,
         server = "router_service",
         command = "request",
+        type = "request",
         destUid = destUid,
         error = 0,
-        token = "",
     }
 
     local headMsg = protobuf.encode("base.Head",head)
     local headPack = string.pack_package(headMsg)
 
     local dataPack = string.pack_package(headPack .. pack)
-    dispatch.addPack(_Session, dataPack)
+    dispatch.addPack(sessionStr, dataPack)
+    dispatch.writeSocket(dataPack)
+end
+function dispatch.recvPack()
+end
+
+function dispatch.parsePack(pack)
+    local headMsg, headSize, _ = string.unpack_package(pack)
+    local head = protobuf.decode("base.Head", headMsg)
+    if not head then
+        log.error("parse head nil")
+        return
+    end
+    if head.type == "respond" then
+
+    end
+end
+
+function dispatch.respond(head)
+    dispatch.delPack(head.sessionStr)
+end
+
+function dispatch.request(dataPack)
+    local pack, packSize, _ = string.unpack_package(dataPack)
+    local headMsg, headSize, bodyPack = string.unpack_package(pack)
+    local head = protobuf.decode("base.Head", headMsg)
+    if not head then
+        log.error("parse head nil")
+        return
+    end
+
+    if head.type == "call" then
+        dispatch.routerCall(dataPack)
+    elseif head.type == "send" then
+        dispatch.routerSend(dataPack)
+    elseif head.type == "ret" then
+        dispatch.routerRet(dataPack)
+    end
+end
+
+function dispatch.routerCall(dataPack)
 
 end
 
-function dispatch.recvAck()
+function dispatch.routerSend(dataPack)
 
 end
 
-function dispatch.recvPack(destUid, handle, session, pack)
-
+function dispatch.routerRet(head, bodyPack)
+    local bodyMsg, bodySz, _ = string.unpack_package(bodyPack)
+    local handle = 0
+    local session = 0
+    skynet.resume(handle, session, skynet.unpack(bodyMsg, bodySz))
 end
-
 
 dispatch.start(function ()
     skynet.fork(stats)

@@ -89,11 +89,15 @@ function dispatchClass:sendServer(token, serverName, command, ...)
 end
 
 function dispatchClass:callRouter(token, serverName, command, ...)
-    local session = self:sendRouter(token, serverName, command, ...)
+    local session = self:doRouter("call", token, serverName, command, ...)
     return skynet.suspend(session)
 end
 
 function dispatchClass:sendRouter(token, serverName, command, ...)
+    self:doRouter("send", token, serverName, command, ...)
+end
+
+function dispatchClass:doRouter(type, token, serverName, command, ...)
     local source = self:getSource(token)
     local head = self:getHead(token)
     local session = skynet.genid()
@@ -103,6 +107,7 @@ function dispatchClass:sendRouter(token, serverName, command, ...)
         session = sessionStr,
         server = serverName,
         command = command,
+        type = type,
         sourceUid = head.sourceUid,
         destUid = head.destUid,
         error = 0,
@@ -118,5 +123,6 @@ function dispatchClass:sendRouter(token, serverName, command, ...)
     skynet.send(source, "lua", "callServer", head.sourceUid, "router_server", "router", head.destUid, sessionStr, pack)
     return session
 end
+
 
 return dispatchClass

@@ -4,13 +4,14 @@ package base;
 
 message Head {
     required int32 ver              = 1;
-    required string session          = 2;
+    required string session         = 2;
     required string server          = 3;
     required string command         = 4;
-	required int32  sourceUid       = 5;
-	required int32  destUid         = 6;
-	required int32  error           = 7;
-	required string token           = 8;
+    required string type            = 5;
+	required int32  sourceUid       = 6;
+	required int32  destUid         = 7;
+	required int32  error           = 8;
+	required string token           = 9;
 }
 
 local handle, routerSession, serverName, command, sourceUid, destUid

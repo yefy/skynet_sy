@@ -1,6 +1,8 @@
 require "common/functions"
 local skynet = require "skynet"
 local log = require "common/log"
+require "common/proto_create"
+local protobuf = require "pblib/protobuf"
 local dispatchClass = class("dispatch_class")
 
 function dispatchClass:ctor(...)
@@ -87,26 +89,34 @@ function dispatchClass:sendServer(token, serverName, command, ...)
 end
 
 function dispatchClass:callRouter(token, serverName, command, ...)
-    local routerSession = self:sendRouter(token, serverName, command, ...)
-    return skynet.suspend(routerSession)
+    local session = self:sendRouter(token, serverName, command, ...)
+    return skynet.suspend(session)
 end
 
 function dispatchClass:sendRouter(token, serverName, command, ...)
     local source = self:getSource(token)
     local head = self:getHead(token)
-    local routerSession = skynet.genid()
-    log.trace("sendRouter key,  skynet.self(), routerSession, serverName, command, head.sourceUid, head.destUid", self:getKey(), skynet.self(), routerSession, serverName, command, head.sourceUid, head.destUid)
-    local headMsg, headSz = skynet.pack(skynet.self(), routerSession, serverName, command, head.sourceUid, head.destUid)
-    local headStr = skynet.tostring(headMsg, headSz)
-    skynet.trash(headMsg, headSz)
-    local headPack = string.pack_package(headStr)
-    local bodyMsg, bodySz = skynet.pack(head.sourceUid, ...)
+    local session = skynet.genid()
+    local sessionStr = skynet.self().."_"..session
+    local routerHead = {
+        ver = 1,
+        session = sessionStr,
+        server = serverName,
+        command = command,
+        sourceUid = head.sourceUid,
+        destUid = head.destUid,
+        error = 0,
+    }
+    local routerHeadMsg = protobuf.encode("base.Head",routerHead)
+    local routerHeadPack = string.pack_package(routerHeadMsg)
+    local bodyMsg, bodySz = skynet.pack(...)
     local bodyStr = skynet.tostring(bodyMsg, bodySz)
     skynet.trash(bodyMsg, bodySz)
     local bodyPack = string.pack_package(bodyStr)
-    local pack = string.pack_package(headPack..bodyPack)
-    skynet.send(source, "lua", "callServer", head.sourceUid, "router_server", "router", head.destUid, skynet.self(), routerSession, pack)
-    return routerSession
+
+    local pack = string.pack_package(routerHeadPack..bodyPack)
+    skynet.send(source, "lua", "callServer", head.sourceUid, "router_server", "router", head.destUid, sessionStr, pack)
+    return session
 end
 
 return dispatchClass

@@ -4,6 +4,8 @@ require "common/proto_create"
 local protobuf = require "pblib/protobuf"
 local socket = require "skynet.socket"
 local dispatch = require "common/dispatch"
+local requestAddr = skynet.getenv("requestAddr")
+local _FD
 
 local _RouterMap = {}
 
@@ -82,6 +84,13 @@ function dispatch.router(destUid, handle, session, pack)
     return 0
 end
 
+function dispatch.getSocket()
+    if not _FD then
+        _FD = socket.open()
+    end
+end
+
+
 function dispatch.addPack(session, pack)
     if _PackMap[session] then
         log.error("_PackMap[session]", session)
@@ -113,6 +122,10 @@ function dispatch.sendPack(destUid, pack)
 
     local dataPack = string.pack_package(headPack .. pack)
     dispatch.addPack(_Session, dataPack)
+
+end
+
+function dispatch.recvAck()
 
 end
 

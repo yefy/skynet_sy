@@ -3,7 +3,10 @@ local log = require "common/log"
 require "common/proto_create"
 local protobuf = require "pblib/protobuf"
 local socket = require "skynet.socket"
+local queue = require "skynet.queue"
 local dispatch = require "common/dispatch"
+dispatch.actionServerCS()
+
 local requestAddr = skynet.getenv("requestAddr")
 local _FD
 
@@ -69,7 +72,7 @@ local function recvRequest(pack)
     end
 end
 
-function dispatch.router(destUid, handle, session, pack)
+function dispatch.router(sourceUid, handle, session, pack)
     local token = handle..session
     if  _RouterMap[token] then
         log.error("exit token, handle, session", token, handle, session)
@@ -77,7 +80,7 @@ function dispatch.router(destUid, handle, session, pack)
         return
     end
     _RouterMap[token] = true
-    log.trace("destUid, handle, session, pack", destUid, handle, session, pack)
+    log.trace("destUid, handle, session, pack", sourceUid, handle, session, pack)
     log.trace("pack", pack)
     skynet.fork(recvRequest, pack)
     return 0
@@ -105,52 +108,102 @@ end
 
 
 function dispatch.getSocket()
+    --[[
     if not _FD then
         _FD = socket.open(requestAddr)
     end
     return _FD
+    ]]
 end
 
 function dispatch.writeSocket(pack)
+    --[[
     local fd = dispatch.getSocket()
     socket.write(fd, pack)
+    ]]
 end
+
+function dispatch.readSocket(sessionStr)
+    local head = {
+        ver = 1,
+        session = sessionStr,
+        server = "router_service",
+        command = "request",
+        type = "respond",
+        error = 0,
+    }
+
+    local headMsg = protobuf.encode("base.Head", head)
+    return string.pack_package(headMsg)
+end
+
 
 function dispatch.addPack(sessionStr, pack)
     if _PackMap[sessionStr] then
-        log.error("_PackMap[session]", sessionStr)
+        log.error("_PackMap[sessionStr]", sessionStr)
     end
     _PackMap[sessionStr] = pack
 end
 
 function dispatch.delPack(sessionStr)
     if not _PackMap[sessionStr] then
-        log.error("not _PackMap[session]", sessionStr)
+        log.error("not _PackMap[sessionStr]", sessionStr)
     end
     _PackMap[sessionStr] = nil
 end
 
-function dispatch.sendPack(destUid, sessionStr, pack)
+
+function dispatch.server_router(sourceUid, sessionStr, pack)
+    dispatch.sendRequestPack(sourceUid, sessionStr, pack)
+    dispatch.recvRespondPack(sessionStr)
+end
+
+function dispatch.sendRequestPack(sourceUid, sessionStr, pack)
     local head = {
         ver = 1,
         session = sessionStr,
         server = "router_service",
         command = "request",
         type = "request",
-        destUid = destUid,
+        sourceUid = sourceUid,
         error = 0,
     }
 
-    local headMsg = protobuf.encode("base.Head",head)
+    local headMsg = protobuf.encode("base.Head", head)
     local headPack = string.pack_package(headMsg)
-
     local dataPack = string.pack_package(headPack .. pack)
     dispatch.addPack(sessionStr, dataPack)
     dispatch.writeSocket(dataPack)
+    skynet.fork(dispatch.getRequestPack, dataPack)
 end
 
-function dispatch.recvPack()
+function dispatch.recvRespondPack(sessionStr)
+    local pack = dispatch.readSocket(sessionStr)
+    local headMsg, headSize, _ = string.unpack_package(pack)
+    local head = protobuf.decode("base.Head", headMsg)
+    if not head then
+        log.error("parse head nil")
+        return
+    end
+    dispatch.delPack(head.session)
 end
+
+function dispatch.getRequestPack(pack)
+    local head = {
+        ver = 1,
+        session = sessionStr,
+        server = "router_service",
+        command = "request",
+        type = "request",
+        sourceUid = sourceUid,
+        error = 0,
+    }
+
+    local headMsg = protobuf.encode("base.Head", head)
+    local headPack = string.pack_package(headMsg)
+    local dataPack = string.pack_package(headPack .. pack)
+end
+
 
 function dispatch.parsePack(pack)
     local headMsg, headSize, bodyPack = string.unpack_package(pack)
@@ -180,17 +233,17 @@ function dispatch.request(dataPack)
     end
     local bodyMsg, bodySz, _ = string.unpack_package(bodyPack)
     if head.type == "call" then
-        dispatch.routerCall(head, bodyPack)
+        dispatch.routerCall(head, bodyMsg, bodySz)
     elseif head.type == "send" then
-        dispatch.routerSend(head, bodyPack)
+        dispatch.routerSend(head, bodyMsg, bodySz)
     elseif head.type == "ret" then
-        dispatch.routerRet(head, bodyPack)
+        dispatch.routerRet(head, bodyMsg, bodySz)
     end
 end
 
 function dispatch.routerCall(head, bodyMsg, bodySz)
-    local _, agent = skynet.call("server_server", "lua", "getAgent", head.destUid)
-    local retMsg, retSz = skynet.pack(skynet.call(agent, "lua", "callServer", head.destUid, head.server, head.command, head.destUid, skynet.unpack(bodyMsg, bodySz)))
+    local _, agent = skynet.call("server_server", "lua", "getAgent", head.sourceUid)
+    local retMsg, retSz = skynet.pack(skynet.call(agent, "lua", "callServer", head.sourceUid, head.server, head.command, head.sourceUid, skynet.unpack(bodyMsg, bodySz)))
     head.type = "ret"
     local headMsg = protobuf.encode("base.Head",head)
     local headPack = string.pack_package(headMsg)
@@ -203,8 +256,8 @@ function dispatch.routerCall(head, bodyMsg, bodySz)
 end
 
 function dispatch.routerSend(head, bodyMsg, bodySz)
-    local _, agent = skynet.call("server_server", "lua", "getAgent", head.destUid)
-    local retMsg, retSz = skynet.pack(skynet.call(agent, "lua", "callServer", head.destUid, head.server, head.command, head.destUid, skynet.unpack(bodyMsg, bodySz)))
+    local _, agent = skynet.call("server_server", "lua", "getAgent", head.sourceUid)
+    skynet.call(agent, "lua", "callServer", head.sourceUid, head.server, head.command, head.sourceUid, skynet.unpack(bodyMsg, bodySz))
 end
 
 function dispatch.routerRet(head, bodyPack)

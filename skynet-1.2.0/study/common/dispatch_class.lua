@@ -120,7 +120,7 @@ function dispatchClass:doRouter(type, token, serverName, command, ...)
     local bodyPack = string.pack_package(bodyStr)
 
     local pack = string.pack_package(routerHeadPack..bodyPack)
-    skynet.send(source, "lua", "callServer", head.sourceUid, "router_server", "router", head.destUid, sessionStr, pack)
+    skynet.send(source, "lua", "callServer", head.sourceUid, "router_server", "server_router", head.destUid, sessionStr, pack)
     return session
 end
 

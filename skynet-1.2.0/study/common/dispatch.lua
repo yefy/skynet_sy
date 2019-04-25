@@ -147,11 +147,21 @@ function  dispatch.serverClass(session, source, command, key, ...)
 	end
 end
 
+
+function  dispatch.getRouterData(pack, ...)
+	if dispatchParseRouter then
+		local bodyPack, bodySize = string.unpack_package(pack)
+		return skynet.unpack(bodyPack, bodySize), ...
+	else
+		return pack, ...
+	end
+end
+
 function  dispatch.router(session, source, command, head, pack, ...)
 	if dispatchRouteCS then
-		return dispatchRouteCS(dispatch[command], session, source, head, pack, ...)
+		return dispatchRouteCS(dispatch[command], session, source, head, dispatch.getRouterData(pack, ...))
 	else
-		return dispatch[command](session, source, head, pack, ...)
+		return dispatch[command](session, source, head, dispatch.getRouterData(pack, ...))
 	end
 end
 
@@ -160,16 +170,16 @@ function  dispatch.routerClass(session, source, command, head, pack, ...)
 	local token = session .. source
 	--log.fatal("addToken player, token, session, source, head, head.sourceUid", player, token, session, source, head, head.sourceUid)
 	player:addToken(token, session, source, head)
-	local error, data
-	local cs = dispatchClientCSUid[head.sourceUid]
+	local cs = dispatchRouterCSUid[head.sourceUid]
+	local ret
 	if cs then
-		error, data = cs(player[command], player, token, pack, ...)
+		ret = {cs(player[command], player, token, dispatch.getRouterData(pack, ...))}
 	else
-		error, data = player[command](player, token, pack, ...)
+		ret = {player[command](player, token, dispatch.getRouterData(pack, ...))}
 	end
 	--log.fatal("clearToken player, token, session, source, head, head.sourceUid", player, token, session, source, head, head.sourceUid)
 	player:clearToken(token, session, source, head)
-	return error, data
+	return table.unpack(ret)
 end
 
 local function xpcall_ret(funcName, session, source, command, ok, error, ...)
@@ -279,18 +289,50 @@ function  dispatch.toServer(session, source, command, ...)
 	return func(session, source, command, ...)
 end
 
+function  dispatch.toRouter(session, source, command, pack, ...)
+	log.all("session, source, command, pack, ...", session, source, command, pack, log.getArgvData(...))
+	local headMsg, headSize, bodyPack = string.unpack_package(pack)
+	local head = protobuf.decode("base.Head", headMsg)
+	if not head then
+		log.error("parse head nil")
+		return systemError.invalid
+	end
+	head.error = systemError.success
+	log.printTable(log.allLevel(), {{head, "head"}})
+	local func
+	local funcName
+	if dispatchClassName then
+		func = dispatch.clientClass
+		funcName = "dispatch.routerClass"
+	else
+		func = dispatch.client
+		funcName = "dispatch.router"
+	end
+	if dispatchParseRouter then
+		return xpcall_ret(funcName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, head, bodyPack, ...))
+	else
+		return xpcall_ret(funcName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, head, pack, ...))
+	end
+end
 
-function  dispatch.toClient_xpcall(session, source, command, ...)
+
+function  dispatch.toClient_xpcall(session, source, type, command, ...)
 	--log.fatal("toClient_xpcall session, source", session, source)
 	local func
 	local funcName
-	if dispatchConfig then
-		func = dispatch.toClientBody
-		funcName = "dispatch.toClientBody"
-	else
-		func = dispatch.toClient
-		funcName = "dispatch.toClient"
+	if type == "client" then
+		if dispatchConfig then
+			func = dispatch.toClientBody
+			funcName = "dispatch.toClientBody"
+		else
+			func = dispatch.toClient
+			funcName = "dispatch.toClient"
+		end
+	elseif type == "router" then
+		func = dispatch.toRouter
+		funcName = "dispatch.toRouter"
 	end
+
 	if session > 0 then
 		skynet.ret(skynet.pack(xpcall_ret(funcName, session, source, command, xpcall(func, function() print(debug.traceback()) end, session, source, command, ...))))
 	else

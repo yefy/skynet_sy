@@ -91,7 +91,7 @@ function  dispatchSocket:data(pack, packSize)
 		end)
 
 		log.trace("source, desc, self.uid, rHeadData.server, rHeadData.command, pack", skynet.self(), self.agent, self.uid, head.server, head.command, pack)
-		error, pack = skynet.call(self.agent, "client", "callClient", pack)
+		error, pack = skynet.call(self.agent, "client", "client", "callClient", pack)
 	end
 	self.statsNumber = self.statsNumber + 1
 	self.sumStatsNumber = self.sumStatsNumber + 1

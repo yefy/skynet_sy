@@ -73,7 +73,7 @@ function dispatch:checkAgent(server, serverName)
     end)
 end
 
-function dispatch:sendClient(serverName, command, pack)
+function dispatch:doCall(type, serverName, command, pack)
     local server = self.server[serverName]
     if not server then
         log.error("not serverName", serverName)
@@ -83,12 +83,12 @@ function dispatch:sendClient(serverName, command, pack)
 
     server.callNumber = server.callNumber + 1
     --log.fatal("server.agent, command, pack", server.agent, command, pack)
-    local error, data =  skynet.call(server.agent, "client", command, pack)
+    local ret =  {skynet.call(server.agent, "client", type, command, pack)}
     server.callNumber = server.callNumber - 1
 
     self.statsNumber = self.statsNumber + 1
     self.sumStatsNumber = self.sumStatsNumber + 1
-    return error, data
+    return table.unpack(ret)
 end
 
 function dispatch:callClient(token, pack)
@@ -100,7 +100,19 @@ function dispatch:callClient(token, pack)
 
     local head = self:getHead(token)
     log.printTable(log.allLevel(), {{head, "head"}})
-    return self:sendClient(head.server, head.command, pack)
+    return self:doCall("client", head.server, head.command, pack)
+end
+
+function dispatch:callRouter(token, pack)
+    if commonConfig.serverAgentBenchmark == "server_agent_ping" then
+        self.statsNumber = self.statsNumber + 1
+        self.sumStatsNumber = self.sumStatsNumber + 1
+        return systemError.invalid
+    end
+
+    local head = self:getHead(token)
+    log.printTable(log.allLevel(), {{head, "head"}})
+    return self:doCall("router", head.server, head.command, pack)
 end
 
 function dispatch:callServer(serverName, ...)

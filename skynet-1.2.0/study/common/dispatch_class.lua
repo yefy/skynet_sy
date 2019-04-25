@@ -108,8 +108,8 @@ function dispatchClass:doRouter(type, token, serverName, command, ...)
         server = serverName,
         command = command,
         type = type,
-        sourceUid = head.sourceUid,
-        destUid = head.destUid,
+        sourceUid = head.destUid,
+        destUid = head.sourceUid,
         error = 0,
     }
     local routerHeadMsg = protobuf.encode("base.Head",routerHead)

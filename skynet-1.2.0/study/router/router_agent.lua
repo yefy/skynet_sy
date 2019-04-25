@@ -83,6 +83,27 @@ function dispatch.router(destUid, handle, session, pack)
     return 0
 end
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function dispatch.getSocket()
     if not _FD then
         _FD = socket.open(requestAddr)
@@ -127,18 +148,21 @@ function dispatch.sendPack(destUid, sessionStr, pack)
     dispatch.addPack(sessionStr, dataPack)
     dispatch.writeSocket(dataPack)
 end
+
 function dispatch.recvPack()
 end
 
 function dispatch.parsePack(pack)
-    local headMsg, headSize, _ = string.unpack_package(pack)
+    local headMsg, headSize, bodyPack = string.unpack_package(pack)
     local head = protobuf.decode("base.Head", headMsg)
     if not head then
         log.error("parse head nil")
         return
     end
     if head.type == "respond" then
-
+        dispatch.respond(head)
+    elseif head.type == "request" then
+        dispatch.request(bodyPack)
     end
 end
 
@@ -154,28 +178,40 @@ function dispatch.request(dataPack)
         log.error("parse head nil")
         return
     end
-
+    local bodyMsg, bodySz, _ = string.unpack_package(bodyPack)
     if head.type == "call" then
-        dispatch.routerCall(dataPack)
+        dispatch.routerCall(head, bodyPack)
     elseif head.type == "send" then
-        dispatch.routerSend(dataPack)
+        dispatch.routerSend(head, bodyPack)
     elseif head.type == "ret" then
-        dispatch.routerRet(dataPack)
+        dispatch.routerRet(head, bodyPack)
     end
 end
 
-function dispatch.routerCall(dataPack)
-
+function dispatch.routerCall(head, bodyMsg, bodySz)
+    local _, agent = skynet.call("server_server", "lua", "getAgent", head.destUid)
+    local retMsg, retSz = skynet.pack(skynet.call(agent, "lua", "callServer", head.destUid, head.server, head.command, head.destUid, skynet.unpack(bodyMsg, bodySz)))
+    head.type = "ret"
+    local headMsg = protobuf.encode("base.Head",head)
+    local headPack = string.pack_package(headMsg)
+    local bodyStr = skynet.tostring(retMsg, retSz)
+    skynet.trash(retMsg, retSz)
+    local bodyPack = string.pack_package(bodyStr)
+    local pack = string.pack_package(headPack..bodyPack)
+    log.trace("pack = ", pack)
+    dispatch.writeSocket(pack)
 end
 
-function dispatch.routerSend(dataPack)
-
+function dispatch.routerSend(head, bodyMsg, bodySz)
+    local _, agent = skynet.call("server_server", "lua", "getAgent", head.destUid)
+    local retMsg, retSz = skynet.pack(skynet.call(agent, "lua", "callServer", head.destUid, head.server, head.command, head.destUid, skynet.unpack(bodyMsg, bodySz)))
 end
 
 function dispatch.routerRet(head, bodyPack)
     local bodyMsg, bodySz, _ = string.unpack_package(bodyPack)
-    local handle = 0
-    local session = 0
+    local spritArr = string.split(head.session, "_")
+    local handle = spritArr[1]
+    local session = spritArr[2]
     skynet.resume(handle, session, skynet.unpack(bodyMsg, bodySz))
 end
 

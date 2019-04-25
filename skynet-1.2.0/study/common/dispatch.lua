@@ -10,10 +10,13 @@ local dispatchClassName   --需要生成类
 local dispatchPlayer = {}
 
 local dispatchConfig  		--需要解析body
+local dispatchParseRouter
 local dispatchClientCS
 local dispatchServerCS
+local dispatchRouteCS
 local dispatchClientCSUid = {}
 local dispatchServerCSUid = {}
+local dispatchRouterCSUid = {}
 
 local dispatch = {}
 
@@ -35,6 +38,10 @@ function dispatch.actionConfig(configArr)
 	end
 end
 
+function dispatch.actionParseRouter()
+	dispatchParseRouter = true
+end
+
 function dispatch.actionClass(className)
 	dispatchClassName = className
 end
@@ -45,6 +52,10 @@ end
 
 function dispatch.actionServerCS()
 	dispatchServerCS = queue()
+end
+
+function dispatch.actionRouterCS()
+	dispatchRouteCS = queue()
 end
 
 function dispatch.newClass(key)
@@ -60,6 +71,10 @@ function dispatch.newClass(key)
 		end
 		if dispatchServerCS then
 			dispatchServerCSUid[key] = queue()
+		end
+
+		if dispatchRouteCS then
+			dispatchRouterCSUid[key] = queue()
 		end
 	end
 	return player
@@ -130,6 +145,31 @@ function  dispatch.serverClass(session, source, command, key, ...)
 	else
 		return player[command](player, ...)
 	end
+end
+
+function  dispatch.router(session, source, command, head, pack, ...)
+	if dispatchRouteCS then
+		return dispatchRouteCS(dispatch[command], session, source, head, pack, ...)
+	else
+		return dispatch[command](session, source, head, pack, ...)
+	end
+end
+
+function  dispatch.routerClass(session, source, command, head, pack, ...)
+	local player = dispatch.newClass(head.sourceUid)
+	local token = session .. source
+	--log.fatal("addToken player, token, session, source, head, head.sourceUid", player, token, session, source, head, head.sourceUid)
+	player:addToken(token, session, source, head)
+	local error, data
+	local cs = dispatchClientCSUid[head.sourceUid]
+	if cs then
+		error, data = cs(player[command], player, token, pack, ...)
+	else
+		error, data = player[command](player, token, pack, ...)
+	end
+	--log.fatal("clearToken player, token, session, source, head, head.sourceUid", player, token, session, source, head, head.sourceUid)
+	player:clearToken(token, session, source, head)
+	return error, data
 end
 
 local function xpcall_ret(funcName, session, source, command, ok, error, ...)

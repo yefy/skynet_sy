@@ -5,7 +5,13 @@ local protobuf = require "pblib/protobuf"
 local socket = require "skynet.socket"
 local queue = require "skynet.queue"
 local dispatch = require "common/dispatch"
-dispatch.actionServerCS()
+local mysql = require "skynet.db.mysql"
+local _CS = queue()
+
+
+
+
+local _DB
 
 local requestAddr = skynet.getenv("requestAddr")
 local _FD
@@ -153,12 +159,81 @@ function dispatch.delPack(sessionStr)
 end
 
 
-function dispatch.server_router(sourceUid, sessionStr, pack)
-    dispatch.sendRequestPack(sourceUid, sessionStr, pack)
-    dispatch.recvRespondPack(sessionStr)
+function dispatch.server_router(sourceUid, sessionStr, serverName, dataPack)
+    return dispatch.saveToRequestDB("TopicTest", sourceUid, serverName, dataPack)
+    --dispatch.sendRequestPack(sourceUid, sessionStr, pack)
+    --dispatch.recvRespondPack(sessionStr)
 end
 
-function dispatch.sendRequestPack(sourceUid, sessionStr, pack)
+function dispatch.saveToRequestDB(regionName, sourceUid, serverName, dataPack)
+    log.fatal("saveToRequestDB regionName, sourceUid, serverName, pack", regionName, sourceUid, serverName, dataPack)
+    _CS(function ()
+        local res = _DB:query("insert into rocketmqRouter_request (regionName, serverName, userId, body) "
+                .. "values (\'" .. regionName .. "\', \'" .. serverName .. "\'," ..sourceUid ..", \'" .. dataPack .."\')")
+        if res.errno then
+            log.printTable(log.fatalLevel(), {{res, "saveToRequestDB error res"}})
+        end
+    end)
+    return 0
+end
+
+function dispatch.saveToRespondDB(regionName, sourceUid, serverName, pack)
+    log.fatal("saveToRespondDB regionName, sourceUid, serverName, pack", regionName, sourceUid, serverName, pack)
+    _CS(function ()
+        local res = _DB:query("insert into rocketmqrouter_respond (regionName, serverName, userId, body) "
+                .. "values (\'" .. regionName .. "\', \'" .. serverName .. "\'," ..sourceUid ..", \'" .. pack .."\')")
+        if res.errno then
+            log.printTable(log.fatalLevel(), {{res, "saveToRespondDB error res"}})
+        end
+    end)
+    return 0
+end
+
+local requesToRespondDBId = 0
+function dispatch.requesToRespondDB()
+    local res
+    _CS(function ()
+        res = _DB:query("select id, regionName, serverName, userId, body from rocketmqRouter_request where id > " .. requesToRespondDBId .." order by id ASC  limit 1")
+        if res.errno then
+            log.printTable(log.fatalLevel(), {{res, "requesToRespondDB error res"}})
+        end
+    end)
+    if res and #res > 0 then
+        for _, _data in ipairs(res) do
+            log.printTable(log.fatalLevel(), {{_data, "requesToRespondDB _data"}})
+            dispatch.saveToRespondDB(_data.regionName, _data.userId, _data.serverName, _data.body)
+            requesToRespondDBId = _data.id
+        end
+    else
+        skynet.sleep(10)
+    end
+    skynet.fork(dispatch.requesToRespondDB)
+end
+
+
+local loadRespondDBId = 0
+function dispatch.loadRespondDB()
+    local res
+    _CS(function ()
+        res = _DB:query("select id, regionName, serverName, userId, body from rocketmqrouter_respond where id > " .. loadRespondDBId .." order by id ASC  limit 1")
+        if res.errno then
+            log.printTable(log.fatalLevel(), {{res, "loadRespondDB error res"}})
+        end
+    end)
+    if res and #res > 0 then
+        for _, _data in ipairs(res) do
+            log.printTable(log.fatalLevel(), {{_data, "loadRespondDB _data"}})
+            loadRespondDBId = _data.id
+            dispatch.request(_data.body)
+        end
+    else
+        skynet.sleep(10)
+    end
+    skynet.fork(dispatch.loadRespondDB)
+end
+
+
+function dispatch.sendRequestPack(sourceUid, sessionStr, serverName, pack)
     local head = {
         ver = 1,
         session = sessionStr,
@@ -231,19 +306,19 @@ function dispatch.request(dataPack)
         log.error("parse head nil")
         return
     end
-    local bodyMsg, bodySz, _ = string.unpack_package(bodyPack)
+
     if head.type == "call" then
-        dispatch.routerCall(head, bodyMsg, bodySz)
+        dispatch.routerCall(head, pack)
     elseif head.type == "send" then
-        dispatch.routerSend(head, bodyMsg, bodySz)
+        dispatch.routerSend(head, pack)
     elseif head.type == "ret" then
-        dispatch.routerRet(head, bodyMsg, bodySz)
+        dispatch.routerRet(head, bodyPack)
     end
 end
 
-function dispatch.routerCall(head, bodyMsg, bodySz)
+function dispatch.routerCall(head, pack)
     local _, agent = skynet.call("server_server", "lua", "getAgent", head.sourceUid)
-    local retMsg, retSz = skynet.pack(skynet.call(agent, "lua", "callServer", head.sourceUid, head.server, head.command, head.sourceUid, skynet.unpack(bodyMsg, bodySz)))
+    local retMsg, retSz = skynet.pack(skynet.call(agent, "client", "router", "callRouter", pack))
     head.type = "ret"
     local headMsg = protobuf.encode("base.Head",head)
     local headPack = string.pack_package(headMsg)
@@ -252,12 +327,13 @@ function dispatch.routerCall(head, bodyMsg, bodySz)
     local bodyPack = string.pack_package(bodyStr)
     local pack = string.pack_package(headPack..bodyPack)
     log.trace("pack = ", pack)
-    dispatch.writeSocket(pack)
+    dispatch.saveToRequestDB("TopicTest", head.destUid, head.server, pack)
+    --dispatch.writeSocket(pack)
 end
 
-function dispatch.routerSend(head, bodyMsg, bodySz)
+function dispatch.routerSend(head, pack)
     local _, agent = skynet.call("server_server", "lua", "getAgent", head.sourceUid)
-    skynet.call(agent, "lua", "callServer", head.sourceUid, head.server, head.command, head.sourceUid, skynet.unpack(bodyMsg, bodySz))
+    skynet.call(agent, "client", "router", "callRouter", pack)
 end
 
 function dispatch.routerRet(head, bodyPack)
@@ -269,5 +345,24 @@ function dispatch.routerRet(head, bodyPack)
 end
 
 dispatch.start(function ()
+    local function on_connect(db)
+        db:query("set charset utf8");
+    end
+    local db=mysql.connect({
+        host="192.168.123.213",
+        port=3306,
+        database="skynet_sy",
+        user="yfy",
+        password="yfysina@389",
+        max_packet_size = 1024 * 1024,
+        on_connect = on_connect
+    })
+    if not db then
+        print("failed to connect")
+    end
+    _DB = db
+    print("testmysql success to connect to mysql server")
     skynet.fork(stats)
+    skynet.fork(dispatch.requesToRespondDB)
+    skynet.fork(dispatch.loadRespondDB)
 end)

@@ -100,6 +100,7 @@ local function sendLogin()
 		session = session,
 		server = "player_server",
 		command = "login",
+		type = "call",
 		sourceUid = _sourceUid,
 		destUid = _sourceUid,
 		error = 0,
@@ -125,6 +126,7 @@ local function sendChat()
 		session = session,
 		server = "chat_server",
 		command = "chat",
+		type = "call",
 		sourceUid = _sourceUid,
 		destUid = _destUid,
 		error = 0,
@@ -148,6 +150,7 @@ local function sendMessage()
 		session = session,
 		server = "message_server",
 		command = "message",
+		type = "call",
 		sourceUid = _sourceUid,
 		destUid = _destUid,
 		error = 0,
@@ -171,6 +174,7 @@ local function sendRouter()
 		session = session,
 		server = "player_server",
 		command = "router",
+		type = "call",
 		sourceUid = _sourceUid,
 		destUid = _destUid,
 		error = 0,
@@ -239,7 +243,6 @@ while true do
 	sendRouter()
 	socket.usleep(1000000)
 	dispatch_package()
-	return
 end
 
 if true then
@@ -255,9 +258,9 @@ end
 while true do
 --for i = 1, 100000000000000 do
 	for i = 1, 1000 do
-		sendLogin()
-		sendChat()
-		sendMessage()
+		--sendLogin()
+		--sendChat()
+		--sendMessage()
 	end
 	currnumber = 3 * 1000
 	socket.usleep(10)

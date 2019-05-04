@@ -13,9 +13,7 @@ message Head {
 	required int32  error           = 8;
 	required string token           = 9;
 }
-
-local handle, routerSession, serverName, command, sourceUid, destUid
-
+// type   call  send  ret
 message Login{
 	required string 	password 	    = 1;
 }

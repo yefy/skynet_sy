@@ -26,5 +26,5 @@ sleep 1
 ./skynet study/player/player_config &
 ./skynet study/chat/chat_config &
 ./skynet study/message/message_config &
-./skynet study/router/router_config &
+#./skynet study/router/router_config &
 ./skynet study/switch/switch_config &

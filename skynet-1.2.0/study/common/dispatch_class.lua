@@ -67,6 +67,23 @@ function dispatchClass:getHead(token)
     return self.token[token].head
 end
 
+function dispatchClass:getSourceUid(token)
+    if not self.token[token] then
+        log.error("not token", token)
+        return
+    end
+    return self.token[token].head.sourceUid
+end
+
+function dispatchClass:getDestUid(token)
+    if not self.token[token] then
+        log.error("not token", token)
+        return
+    end
+    return self.token[token].head.destUid
+end
+
+
 function dispatchClass:callServer(token, serverName, command, ...)
     --log.fatal("111callServer key, self.token, id, self, token", self:getKey(), self.token, skynet.self(), self, token)
     local source = self:getSource(token)
@@ -111,6 +128,7 @@ function dispatchClass:doRouter(type, token, serverName, command, ...)
         sourceUid = head.destUid,
         destUid = head.sourceUid,
         error = 0,
+        token = "",
     }
     local routerHeadMsg = protobuf.encode("base.Head",routerHead)
     local routerHeadPack = string.pack_package(routerHeadMsg)
@@ -120,7 +138,7 @@ function dispatchClass:doRouter(type, token, serverName, command, ...)
     local bodyPack = string.pack_package(bodyStr)
 
     local pack = string.pack_package(routerHeadPack..bodyPack)
-    skynet.send(source, "lua", "callServer", head.sourceUid, "router_server", "server_router", head.destUid, sessionStr, pack)
+    skynet.send(source, "lua", "callServer", head.sourceUid, "router_server", "server_router", head.destUid, sessionStr, serverName, pack)
     return session
 end
 

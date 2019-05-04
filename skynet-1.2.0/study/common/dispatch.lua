@@ -302,10 +302,10 @@ function  dispatch.toRouter(session, source, command, pack, ...)
 	local func
 	local funcName
 	if dispatchClassName then
-		func = dispatch.clientClass
+		func = dispatch.routerClass
 		funcName = "dispatch.routerClass"
 	else
-		func = dispatch.client
+		func = dispatch.router
 		funcName = "dispatch.router"
 	end
 	if dispatchParseRouter then

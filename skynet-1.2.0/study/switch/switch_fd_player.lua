@@ -163,7 +163,7 @@ local function warning(fd, size)
 end
 
 function  dispatchSocket:open(source, fd, dispatch)
-	log.fatal("open fd, dispatch", source, fd, dispatch)
+	log.fatal("source, open fd, dispatch", source, fd, dispatch)
 	self.source = source
 	self.fd = fd
 	self.dispatch = dispatch

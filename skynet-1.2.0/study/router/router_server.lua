@@ -10,7 +10,7 @@ function  dispatch.getAgent(uid)
 end
 
 dispatch.start(function ()
-	for i = 1, 3 do
+	for i = 1, 1 do
 		local agent = skynet.newservice("router_agent")
 		table.insert(_AgentArr, agent)
 	end

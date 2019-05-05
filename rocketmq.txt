@@ -1,3 +1,27 @@
+阿里 RocketMQ 安装与简介
+https://www.cnblogs.com/xiaodf/p/5075167.html
+
+
+RocketMQ详解
+https://zhuanlan.zhihu.com/rocketmq
+
+
+RocketMQ 安装配置及集群主从配置
+https://blog.csdn.net/herforyou/article/details/80341256
+
+RocketMq 学习 中文文档(一)
+https://blog.csdn.net/weixin_40533111/article/details/84451096
+
+RocketMq 集群搭建 部署 (2m-2s-async)(二)
+https://blog.csdn.net/weixin_40533111/article/details/84451219
+
+rocketmq学习 实战(三)
+https://blog.csdn.net/weixin_40533111/article/details/84555137
+
+RocketMq顺序消息和事务消息(四)
+https://blog.csdn.net/weixin_40533111/article/details/84587967
+
+
 sudo apt-get install libbz2-dev
 https://blog.csdn.net/jisuanji198509/article/details/80894944
 sudo apt-get install libtool 
@@ -106,3 +130,7 @@ MySQL卸载：
 4、sudo apt-get remove mysql-common --这个很重要
 
 5、dpkg -l |grep ^rc|awk '{print $2}' |sudo xargs dpkg -P -- 清除残留数据
+
+
+
+

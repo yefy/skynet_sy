@@ -1,6 +1,44 @@
+这两天也刚好看到了这块源码，我认为应该是一个消费者集群可以订阅多个主题，但是必须保证消费组内的成员订阅的主题一致，即消费组A中有consumer1和consumer2那么consumer1订阅了topicA，topicB， consumer2也必须订阅topicA和topicB。这样就不会造成消费者在发送心跳给broker的时候出现因为订阅的topic不一致在调用updateSubscription方法的时候而造成remove的现象。
+
+
+RocketMQ保证消息不丢失
+https://www.jianshu.com/p/3213d8c29fd0
+
+
+RocketMQ基本概念介绍
+https://www.jianshu.com/p/114832365c8a
+
+
+Topic,MessageQueue,QueueData,broker关系说明
+https://www.jianshu.com/p/4ad399d43a9a
+
+
+rocketMQ 消息查询（id,key） 运维命令以及java API的用法
+https://blog.csdn.net/wangqingqi20005/article/details/52245141
+
+
+
+RocketMQ基础概念及使用总结
+https://blog.csdn.net/qq_32711825/article/details/78579864
+
+rocketMq-Topic创建过程
+https://www.jianshu.com/p/345aaa18f71d
+
+
+阿里RocketMQ如何解决消息的顺序&重复两大硬伤？
+https://dbaplus.cn/news-21-1123-1.html
+
+
+
+SpringBoot整合RocketMQ消息队列
+https://www.jianshu.com/p/dd7ca2d10767
+
+RocketMQ中Topic、Tag、GroupName的设计初衷
+https://my.oschina.net/javamaster/blog/2051703
+
+
 阿里 RocketMQ 安装与简介
 https://www.cnblogs.com/xiaodf/p/5075167.html
-
 
 RocketMQ详解
 https://zhuanlan.zhihu.com/rocketmq

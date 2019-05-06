@@ -1,6 +1,26 @@
 这两天也刚好看到了这块源码，我认为应该是一个消费者集群可以订阅多个主题，但是必须保证消费组内的成员订阅的主题一致，即消费组A中有consumer1和consumer2那么consumer1订阅了topicA，topicB， consumer2也必须订阅topicA和topicB。这样就不会造成消费者在发送心跳给broker的时候出现因为订阅的topic不一致在调用updateSubscription方法的时候而造成remove的现象。
 
 
+如master宕机，导致写入队列的数量上出现变化。 如果还是沿用取模的seletor，就会一批订单号的消息前面散列到q0,后面的可能散到q1，这样就不能保证顺序了。除非选择牺牲failover特性，如master挂了无法发通接下来那批消息。 从消费端，如果想保证这批消息是M1消费完成再消费M2的话，可以使用MessageListenerOrderly接口，但是这样的话会有以下问题： 1. 遇到消息失败的消息，无法跳过，当前队列消费暂停 2. 目前版本的RocketMQ的MessageListenerOrderly是不能从slave消费消息的。 更多分析请参考： RocketMQ--角色与术语详解 - 薛定谔的风口猪 RocketMQ--水平扩展及负载均衡详解 - 薛定谔的风口猪
+
+
+
+RocketMQ配置
+https://blog.csdn.net/u013256816/article/details/54743551
+
+
+
+
+Rocketmq-Topic
+https://blog.csdn.net/adaihao_/article/details/54296639
+
+
+
+rocketmq怎么保证队列完全顺序消费？
+https://m635674608.iteye.com/blog/2395826
+
+
+
 RocketMQ保证消息不丢失
 https://www.jianshu.com/p/3213d8c29fd0
 
